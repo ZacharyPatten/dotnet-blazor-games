@@ -1,0 +1,190 @@
+﻿<h3>Sudoku</h3>
+
+<div class="sudoku">
+	@for (int i = 0; i < Board.GetLength(0); i++)
+	{
+		<div class="sudoku-square">
+			@for (int j = 0; j < Board.GetLength(1); j++)
+			{
+				<div class="sudoku-cell @Board[i, j].Locked @Board[i, j].Selected">@Board[i, j].Value</div>
+			}
+		</div>
+	}
+</div>
+
+<style>
+	.sudoku {
+		display: grid;
+		grid-template-columns: auto auto auto;
+		background-color: #333;
+		width: auto;
+		height: auto;
+		column-gap: .5rem;
+		row-gap: .5rem;
+		padding: .5rem;
+		float: left;
+	}
+
+	.sudoku-square {
+		display: grid;
+		grid-template-columns: auto auto auto;
+		background-color: #333;
+		width: auto;
+		height: auto;
+		column-gap: .25rem;
+		row-gap: .25rem;
+	}
+
+	.sudoku-cell {
+		background-color: #f9f9f9;
+		padding: .5rem;
+		font-size: 1rem;
+		text-align: center;
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.locked {
+		background-color: #ccc;
+	}
+
+	.selected {
+		border: .25rem rgb(10, 255, 104);
+	}
+</style>
+
+@code
+{
+	class Cell
+	{
+		public int? Value;
+		public string Locked;
+		public string Selected;
+	}
+
+	static Cell[,] Board;
+
+	static Cell[,] Generate(
+		Random random = null,
+		int? blanks = null)
+	{
+		random ??= new Random();
+		if (blanks.HasValue && blanks < 0 || 81 < blanks)
+		{
+			throw new ArgumentOutOfRangeException(nameof(blanks), blanks.Value, $"{nameof(blanks)} < 0 || 81 < {nameof(blanks)}");
+		}
+		else if (!blanks.HasValue)
+		{
+			blanks = random.Next(0, 82);
+		}
+
+		int?[,] board = new int?[9, 9];
+		(int[] Values, int Count)[,] valids = new (int[] Values, int Count)[9, 9];
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				valids[i, j] = (new int[9], -1);
+			}
+		}
+
+		#region GetValidValues
+
+		void GetValidValues(int row, int column)
+		{
+			bool SquareValid(int value, int row, int column)
+			{
+				for (int i = row - row % 3; i <= row; i++)
+				{
+					for (int j = column - column % 3; j <= column - column % 3 + 2 && !(i == row && j == column); j++)
+					{
+						if (board[i, j] == value)
+						{
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+
+			bool RowValid(int value, int row, int column)
+			{
+				for (int i = 0; i < column; i++)
+				{
+					if (board[row, i] == value)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+			bool ColumnValid(int value, int row, int column)
+			{
+				for (int i = 0; i < row; i++)
+				{
+					if (board[i, column] == value)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+			valids[row, column].Count = 0;
+			for (int i = 1; i <= 9; i++)
+			{
+				if (SquareValid(i, row, column) &&
+					RowValid(i, row, column) &&
+					ColumnValid(i, row, column))
+				{
+					valids[row, column].Values[valids[row, column].Count++] = i;
+				}
+			}
+		}
+
+		#endregion
+
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				GetValidValues(i, j);
+				while (valids[i, j].Count == 0)
+				{
+					board[i, j] = null;
+					i = j == 0 ? i - 1 : i;
+					j = j == 0 ? 8 : j - 1;
+				}
+				int index = random.Next(0, valids[i, j].Count);
+				int value = valids[i, j].Values[index];
+				valids[i, j].Values[index] = valids[i, j].Values[valids[i, j].Count - 1];
+				valids[i, j].Count--;
+				board[i, j] = value;
+			}
+		}
+
+		foreach (int i in random.NextUnique(blanks.Value, 0, 81))
+		{
+			int row = i / 9;
+			int column = i % 9;
+			board[row, column] = null;
+		}
+
+		Cell[,] cellBoard = new Cell[board.GetLength(0), board.GetLength(1)];
+		for (int i = 0; i < board.GetLength(0); i++)
+		{
+			for (int j = 0; j < board.GetLength(1); j++)
+			{
+				cellBoard[i, j] = new Cell()
+				{
+					Value = board[i, j],
+					Locked = board[i, j].HasValue ? "locked" : null,
+					Selected = null,
+				};
+			}
+		}
+
+		return cellBoard;
+	}
+}
