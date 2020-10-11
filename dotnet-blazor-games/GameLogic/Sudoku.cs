@@ -215,20 +215,6 @@ namespace dotnet_blazor_games
 
 				SelectedCell.Value = value;
 			}
-
-			public static string ToString(int?[,] board)
-			{
-				StringBuilder stringBuilder = new StringBuilder();
-				for (int i = 0; i < board.GetLength(0); i++)
-				{
-					for (int j = 0; j < board.GetLength(1); j++)
-					{
-						stringBuilder.Append(board[i, j] + " ");
-					}
-					stringBuilder.AppendLine();
-				}
-				return stringBuilder.ToString();
-			}
 		}
 	}
 }
