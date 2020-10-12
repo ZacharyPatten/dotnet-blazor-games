@@ -14,7 +14,7 @@ jobs:
     - name: publish
       run: dotnet publish --configuration Release
     - name: base-tag in index.html
-      run: sed -i 's/<base href="\/" \/>/<base href="\/dotnet-blazor-games\/" \/>/g' home/runner/work/dotnet-blazor-games/dotnet-blazor-games/dotnet-blazor-games/bin/Release/net5.0/publish/wwwrootindex.html
+      run: sed -i 's/<base href="\/" \/>/<base href="\/dotnet-blazor-games\/" \/>/g' home/runner/work/dotnet-blazor-games/dotnet-blazor-games/dotnet-blazor-games/bin/Release/net5.0/publish/wwwroot/index.html
     - uses: maxheld83/ghpages@master
       name: gh-pages publish
       env:
