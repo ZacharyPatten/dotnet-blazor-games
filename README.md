@@ -17,4 +17,4 @@ Games:
 
 - Sudoku
 
-## _**This repo is still an early work in progress...**_
+Want to play the games yourself? They are hosted via GitHub Pages here: https://zacharypatten.github.io/dotnet-blazor-games/
