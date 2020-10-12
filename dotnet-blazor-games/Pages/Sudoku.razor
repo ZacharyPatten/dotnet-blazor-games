@@ -2,14 +2,18 @@
 
 <h3>Sudoku</h3>
 
-<div class="block">
+<div class="row">
 	<div class="sudoku">
 		@foreach (int i in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
 		{
 			<div class="sudoku-square">
 				@foreach (int j in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
 				{
-					<button class="sudoku-cell @GameLogic.Sudoku.Board[i, j].Locked @GameLogic.Sudoku.Board[i, j].Selected" @onclick="() => ClickCell(i, j)">@GameLogic.Sudoku.Board[i, j].Value</button>
+					// convert from square-cell coordiates to X, Y coordinates
+					int square_i = i - i % 3 + j / 3;
+					int square_j = (i % 3) * 3 + j % 3;
+					Cell cell = Board[square_i, square_j];
+				<button class="sudoku-cell @cell.Locked @cell.Selected @cell.Blocking" @onclick="() => { ClickCell(square_i, square_j); StateHasChanged(); }">@cell.Value</button>
 				}
 			</div>
 		}
@@ -18,28 +22,35 @@
 
 <br/>
 
+<div class="row winmessage" style="display:@Win">
+	You Win! Press "New Puzzle" to generate a new puzzle.
+</div>
+
 <h4>Controls</h4>
 
-<div class="controls">
-	<button class="sudoku-value" @onclick="() => GameLogic.Sudoku.TryMove(null)">X</button>
+<div class="row controls">
+	<button class="sudoku-value" @onclick="() => { TryMove(null, () => StateHasChanged()); StateHasChanged(); }">X</button>
 	@foreach (int i in new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, })
 	{
-	<button class="sudoku-cell" @onclick="() => GameLogic.Sudoku.TryMove(i)">@i</button>
+		<button class="sudoku-value" @onclick="() => { TryMove(i, () => StateHasChanged()); StateHasChanged(); }">@i</button>
 	}
-	<button class="btn btn-primary" @onclick="GenerateNewPuzzle">New Puzzle</button>
+</div>
+<div class="row controls">
+	<button class="btn btn-primary" @onclick="() => { GenerateNewPuzzle(); StateHasChanged(); }">New Puzzle</button>
 </div>
 
 <style>
-	.block {
-		width: 100%;
+	.winmessage {
+		margin-bottom: 1rem;
 	}
 
 	.controls {
-		margin: 1rem;
+		margin-top: 1rem;
 	}
 
 	.controls button {
-		margin: .5rem;
+		margin-right: .5rem;
+		margin-bottom: .5rem;
 	}
 
 	button.sudoku-value {
@@ -49,8 +60,7 @@
 		width: 2rem;
 		height: 2rem;
 		outline: none !important;
-		border: none;
-		margin: 1rem;
+		border-style: solid;
 	}
 
 	.sudoku {
@@ -83,7 +93,6 @@
 		height: 2rem;
 		outline: none !important;
 		border: none;
-		/* margin: auto; */
 	}
 
 	.locked {
@@ -101,26 +110,258 @@
 
 @code
 {
-	static void ClickCell(int i, int j)
+	static Cell[,] Board = Generate();
+
+	static Cell SelectedCell;
+
+	static string Win = "none";
+
+	class Cell
 	{
-		if (string.IsNullOrWhiteSpace(GameLogic.Sudoku.Board[i, j].Locked))
-		{
-			if (GameLogic.Sudoku.SelectedCell is not null)
-			{
-				GameLogic.Sudoku.SelectedCell.Selected = string.Empty;
-			}
-			GameLogic.Sudoku.SelectedCell = GameLogic.Sudoku.Board[i, j];
-			GameLogic.Sudoku.SelectedCell.Selected = "selected";
-		}
+		public int I;
+		public int J;
+		public int? Value;
+		public string Locked;
+		public string Selected;
+		public string Blocking;
 	}
 
-	static void GenerateNewPuzzle()
+	void ClickCell(int i, int j)
 	{
-		GameLogic.Sudoku.Board = GameLogic.Sudoku.Generate();
-		if (GameLogic.Sudoku.SelectedCell is not null)
+		Cell[,] b = Board;
+		if (string.IsNullOrWhiteSpace(Board[i, j].Locked))
 		{
-			GameLogic.Sudoku.SelectedCell.Selected = "";
-			GameLogic.Sudoku.SelectedCell = null;
+			if (SelectedCell is not null)
+			{
+				SelectedCell.Selected = string.Empty;
+			}
+			SelectedCell = Board[i, j];
+			SelectedCell.Selected = "selected";
 		}
+		StateHasChanged();
+	}
+
+	void GenerateNewPuzzle()
+	{
+		Board = Generate();
+		if (SelectedCell is not null)
+		{
+			SelectedCell.Selected = "";
+			SelectedCell = null;
+		}
+		StateHasChanged();
+	}
+
+	static Cell[,] Generate(
+		Random random = null,
+		int? blanks = null)
+	{
+		random ??= new Random();
+		if (blanks.HasValue && blanks < 0 || 81 < blanks)
+		{
+			throw new ArgumentOutOfRangeException(nameof(blanks), blanks.Value, $"{nameof(blanks)} < 0 || 81 < {nameof(blanks)}");
+		}
+		else if (!blanks.HasValue)
+		{
+			blanks = random.Next(0, 82);
+		}
+
+		int?[,] board = new int?[9, 9];
+		(int[] Values, int Count)[,] valids = new (int[] Values, int Count)[9, 9];
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				valids[i, j] = (new int[9], -1);
+			}
+		}
+
+		#region GetValidValues
+
+		void GetValidValues(int row, int column)
+		{
+			bool SquareValid(int value, int row, int column)
+			{
+				for (int i = row - row % 3; i <= row; i++)
+				{
+					for (int j = column - column % 3; j <= column - column % 3 + 2 && !(i == row && j == column); j++)
+					{
+						if (board[i, j] == value)
+						{
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+
+			bool RowValid(int value, int row, int column)
+			{
+				for (int i = 0; i < column; i++)
+				{
+					if (board[row, i] == value)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+			bool ColumnValid(int value, int row, int column)
+			{
+				for (int i = 0; i < row; i++)
+				{
+					if (board[i, column] == value)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+			valids[row, column].Count = 0;
+			for (int i = 1; i <= 9; i++)
+			{
+				if (SquareValid(i, row, column) &&
+					RowValid(i, row, column) &&
+					ColumnValid(i, row, column))
+				{
+					valids[row, column].Values[valids[row, column].Count++] = i;
+				}
+			}
+		}
+
+		#endregion
+
+
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				GetValidValues(i, j);
+				while (valids[i, j].Count == 0)
+				{
+					board[i, j] = null;
+					i = j == 0 ? i - 1 : i;
+					j = j == 0 ? 8 : j - 1;
+				}
+				int index = random.Next(0, valids[i, j].Count);
+				int value = valids[i, j].Values[index];
+				valids[i, j].Values[index] = valids[i, j].Values[valids[i, j].Count - 1];
+				valids[i, j].Count--;
+				board[i, j] = value;
+			}
+		}
+
+		foreach (int i in random.NextUnique(Math.Min(80, blanks.Value), 0, 81))
+		{
+			int row = i / 9;
+			int column = i % 9;
+			board[row, column] = null;
+		}
+
+		Cell[,] cellBoard = new Cell[board.GetLength(0), board.GetLength(1)];
+		for (int i = 0; i < board.GetLength(0); i++)
+		{
+			for (int j = 0; j < board.GetLength(1); j++)
+			{
+				cellBoard[i, j] = new Cell()
+				{
+					I = i,
+					J = j,
+					Value = board[i, j],
+					Locked = board[i, j].HasValue ? "locked" : default,
+				};
+			}
+		}
+
+		return cellBoard;
+	}
+
+	static void TryMove(int? value, Action refresh)
+	{
+		void Blocking(int a, int b)
+		{
+			Board[a, b].Blocking = "blocking";
+			System.Timers.Timer timer = new System.Timers.Timer();
+			timer.Elapsed += (s, e) =>
+			{
+				Board[a, b].Blocking = "";
+				timer.Enabled = false;
+				timer.Dispose();
+				refresh();
+			};
+			timer.Interval = TimeSpan.FromSeconds(1).TotalMilliseconds;
+			timer.Enabled = true;
+			return;
+		}
+
+		if (SelectedCell is null)
+		{
+			return;
+		}
+
+		if (!value.HasValue)
+		{
+			if (string.IsNullOrWhiteSpace(SelectedCell.Locked))
+			{
+				SelectedCell.Value = null;
+			}
+			CheckForWin();
+			return;
+		}
+
+		int x = SelectedCell.I;
+		int y = SelectedCell.J;
+
+		// Square
+		for (int i = x - x % 3; i <= x - x % 3 + 2; i++)
+		{
+			for (int j = y - y % 3; j <= y - y % 3 + 2; j++)
+			{
+				if (Board[i, j].Value == value)
+				{
+					Blocking(i, j);
+					return;
+				}
+			}
+		}
+		// Row
+		for (int i = 0; i < 9; i++)
+		{
+			if (Board[x, i].Value == value)
+			{
+				Blocking(x, i);
+				return;
+			}
+		}
+		// Column
+		for (int i = 0; i < x; i++)
+		{
+			if (Board[i, y].Value == value)
+			{
+				Blocking(i, y);
+				return;
+			}
+		}
+
+		SelectedCell.Value = value;
+		CheckForWin();
+	}
+
+	static void CheckForWin()
+	{
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				if (!Board[i, j].Value.HasValue)
+				{
+					Win = "none";
+					return;
+				}
+			}
+		}
+		Win = "block";
 	}
 }
