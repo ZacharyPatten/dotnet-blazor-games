@@ -15,6 +15,7 @@
 
 Games:
 
+- Minesweeper
 - Sudoku
 
 Want to play the games yourself? They are hosted via GitHub Pages here:<br>https://zacharypatten.github.io/dotnet-blazor-games/

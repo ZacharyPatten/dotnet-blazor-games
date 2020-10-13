@@ -1,0 +1,189 @@
+﻿@page "/minesweeper"
+
+<h3>Minesweeper</h3>
+
+<div class="row">
+	<div class="board">
+		@foreach (int i in Enumerable.Range(0, Board.GetLength(0)))
+		{
+			@foreach (int j in Enumerable.Range(0, Board.GetLength(1)))
+			{
+				Cell cell = Board[i, j];
+				<button class="cell @cell.Mine @cell.Safe @cell.Danger" @onclick="() => { ClickCell(i, j); StateHasChanged(); }">@cell.Display</button>
+			}
+		}
+	</div>
+</div>
+
+<div class="row">
+	<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+</div>
+<br/>
+<div class="row winmessage" style="display:@Win">
+	You Win! Press "New Puzzle" to generate a new puzzle.
+</div>
+
+<style>
+	.board {
+		display: grid;
+		grid-template-columns: @GridColumns;
+		background-color: #333;
+		width: auto;
+		height: auto;
+		column-gap: .25rem;
+		row-gap: .25rem;
+		padding: .5rem;
+		float: left;
+	}
+
+	.cell {
+		background-color: #999;
+		font-size: 1rem;
+		text-align: center;
+		width: 2rem;
+		height: 2rem;
+		outline: none !important;
+		border: none;
+	}
+
+		.cell.danger {
+			background-color: #ccc;
+		}
+
+		.cell.safe {
+			background-color: #fff;
+		}
+
+		.cell.mine {
+			background-color: darkred;
+		}
+
+	.btn-primary {
+		margin-top: .5rem;
+	}
+</style>
+
+@code
+{
+	static Random random = new Random();
+
+	const int mine = -1;
+	static int Height = 10;
+	static int Width = 10;
+	static double MineRatio = .1d;
+	static int MineCount => (int)(Width * Height * MineRatio);
+	static string GridColumns => "auto ".Repeat(Width);
+	static Cell[,] Board = GenerateBoard();
+	static string Win => WinCheck() ? "block" : "none";
+
+	class Cell
+	{
+		public int I;
+		public int J;
+		public int Value = 0;
+		public bool Revealed = false;
+		public string RevealedString => Revealed ? "revealed" : "";
+		public string Danger => Revealed && AdjacentTiles(I, J).Any(c => Board[c.Row, c.Column].Value == mine) ? "danger" : "";
+		public string Safe => Revealed && AdjacentTiles(I, J).All(c => Board[c.Row, c.Column].Value != mine) ? "safe" : "";
+		public string Mine => Revealed && Value is mine ? "mine" : "";
+		public string Display => !Revealed || Value is 0 ? " " : Value is mine ? "X" : Value.ToString();
+	}
+
+	void ClickCell(int row, int column)
+	{
+		if (Board[row, column].Value is mine)
+		{
+			for (int i = 0; i < Width; i++)
+			{
+				for (int j = 0; j < Height; j++)
+				{
+					Board[i, j].Revealed = true;
+				}
+			}
+			return;
+		}
+		Reveal(row, column);
+
+	}
+
+	static IEnumerable<(int Row, int Column)> AdjacentTiles(int column, int row)
+	{
+		//    A B C
+		//    D + E
+		//    F G H
+
+		/* A */
+		if (row > 0 && column > 0) yield return (row - 1, column - 1);
+		/* B */
+		if (row > 0) yield return (row - 1, column);
+		/* C */
+		if (row > 0 && column < Width - 1) yield return (row - 1, column + 1);
+		/* D */
+		if (column > 0) yield return (row, column - 1);
+		/* E */
+		if (column < Width - 1) yield return (row, column + 1);
+		/* F */
+		if (row < Height - 1 && column > 0) yield return (row + 1, column - 1);
+		/* G */
+		if (row < Height - 1) yield return (row + 1, column);
+		/* H */
+		if (row < Height - 1 && column < Width - 1) yield return (row + 1, column + 1);
+	}
+
+	static Cell[,] GenerateBoard()
+	{
+		Cell[,] board = new Cell[Width, Height];
+		for (int i = 0; i < Width; i++)
+		{
+			for (int j = 0; j < Height; j++)
+			{
+				board[i, j] = new Cell();
+			}
+		}
+		foreach (int m in random.NextUnique(MineCount, 0, Width * Height))
+		{
+			int i = m / Width;
+			int j = m % Width;
+			board[i, j].Value = mine;
+			foreach (var tile in AdjacentTiles(j, i))
+			{
+				if (board[tile.Row, tile.Column].Value != mine)
+				{
+					board[tile.Row, tile.Column].Value++;
+				}
+			}
+		}
+		return board;
+	}
+
+	static void Reveal(int row, int column)
+	{
+		Board[row, column].Revealed = true;
+		if (Board[row, column].Value == 0)
+		{
+			foreach (var (Row, Column) in AdjacentTiles(column, row))
+			{
+				if (!Board[Row, Column].Revealed)
+				{
+					Reveal(Row, Column);
+				}
+			}
+		}
+	}
+
+	static bool WinCheck()
+	{
+		int revealCount = 0;
+		for (int i = 0; i < Width; i++)
+		{
+			for (int j = 0; j < Height; j++)
+			{
+				if (Board[i, j].Revealed)
+				{
+					revealCount++;
+				}
+			}
+		}
+		return revealCount == Width * Height - MineCount;
+	}
+}

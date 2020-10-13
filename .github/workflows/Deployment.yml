@@ -1,7 +1,12 @@
 name: Deployment
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+    paths-ignore:
+      - '.vscode/**'
+      - '.github/**'
+      - 'README.md'
 jobs:
   deployment:
     runs-on: ubuntu-latest
