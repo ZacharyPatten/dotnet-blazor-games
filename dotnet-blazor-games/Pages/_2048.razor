@@ -1,0 +1,249 @@
+﻿@page "/2048"
+
+<h3>2048</h3>
+
+<div class="row">
+	<div class="board">
+		@foreach (int i in Enumerable.Range(0, Board.GetLength(0)))
+		{
+			@foreach (int j in Enumerable.Range(0, Board.GetLength(1)))
+			{
+				Cell cell = Board[i, j];
+				<div class="cell" style="background-color: @cell.BackgroundColor; color: @cell.Color;">@cell.Value</div>
+			}
+		}
+	</div>
+</div>
+<div class="row">
+	<div>Score: @score</div>
+</div>
+
+<br/>
+
+<h4>Controls</h4>
+
+<div class="row">
+	<div class="controls">
+		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Left); StateHasChanged(); }">←</button>
+		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Right); StateHasChanged(); }">→</button>
+		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Up); StateHasChanged(); }">↑</button>
+		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Down); StateHasChanged(); }">↓</button>
+	</div>
+</div>
+<div class="row">
+	<div class="controls">
+		<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+	</div>
+</div>
+
+<style>
+
+	.controls button {
+		margin-right: .5rem;
+	}
+
+	.board {
+		display: grid;
+		grid-template-columns: auto auto auto auto;
+		background-color: #333;
+		width: auto;
+		height: auto;
+		column-gap: .25rem;
+		row-gap: .25rem;
+		padding: .5rem;
+		float: left;
+	}
+
+	.cell {
+		background-color: #999;
+		font-size: 1rem;
+		text-align: center;
+		width: 2rem;
+		height: 2rem;
+		outline: none !important;
+		border: none;
+	}
+
+		.cell.danger {
+			background-color: #ccc;
+		}
+
+		.cell.safe {
+			background-color: #fff;
+		}
+
+		.cell.mine {
+			background-color: darkred;
+		}
+
+	.btn-primary {
+		margin-top: .5rem;
+	}
+
+</style>
+
+@code
+{
+	static Random random = new Random();
+	static bool GameOver = false;
+	static Cell[,] Board = GenerateBoard();
+	static int score = 0;
+	static Dictionary<int, System.Drawing.Color> colors = new Dictionary<int, System.Drawing.Color>();
+
+	class Cell
+	{
+		public int? Value;
+		public string BackgroundColor
+		{
+			get
+			{
+				if (!Value.HasValue)
+				{
+					return "#fff";
+				}
+				else if (!colors.ContainsKey(Value.Value))
+				{
+					colors.Add(Value.Value, System.Drawing.Color.FromArgb(random.Next(0, 256), random.Next(0, 256), random.Next(0, 256)));
+				}
+				System.Drawing.Color color = colors[Value.Value];
+				return "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
+			}
+		}
+
+		public string Color
+		{
+			get
+			{
+				if (!Value.HasValue)
+				{
+					return "#fff";
+				}
+				System.Drawing.Color backgroundcolor = colors[Value.Value];
+				int hueTotals = backgroundcolor.R + backgroundcolor.B + backgroundcolor.G;
+				return hueTotals > (255 * 3 / 2) ? "#000" : "#fff";
+			}
+		}
+	}
+
+	static Cell[,] GenerateBoard()
+	{
+		GameOver = false;
+		score = 0;
+		Cell[,] board = new Cell[4, 4];
+		for (int i = 0; i < board.GetLength(0); i++)
+		{
+			for (int j = 0; j < board.GetLength(1); j++)
+			{
+				board[i, j] = new Cell();
+			}
+		}
+
+		AddCell(board);
+		return board;
+	}
+
+	static void AddCell(Cell[,] board)
+	{
+		bool IsNull((int X, int Y) point) => board[point.X, point.Y].Value is null;
+		int nullCount = BoardValues(board).Count(IsNull);
+		if (nullCount == 0)
+		{
+			GameOver = true;
+			return;
+		}
+		int index = random.Next(0, nullCount);
+		var (x, y) = BoardValues(board).Where(IsNull).ElementAt(index);
+		board[x, y].Value = random.Next(10) < 9 ? 2 : 4;
+		score += 2;
+	}
+
+	static IEnumerable<(int, int)> BoardValues(Cell[,] board)
+	{
+		for (int i = board.GetLength(0) - 1; i >= 0; i--)
+		{
+			for (int j = 0; j < board.GetLength(1); j++)
+			{
+				yield return (i, j);
+			}
+		}
+	}
+
+	static bool TryUpdate(Direction direction)
+	{
+		(int X, int Y) Adjacent(int x, int y) =>
+			direction switch
+			{
+				Direction.Up => (x - 1, y),
+				Direction.Down => (x + 1, y),
+				Direction.Left => (x, y - 1),
+				Direction.Right => (x, y + 1),
+				_ => throw new NotImplementedException(),
+			};
+
+		(int X, int Y) Map(int x, int y) =>
+			direction switch
+			{
+				Direction.Up => (x, y),
+				Direction.Down => (Board.GetLength(0) -x - 1, y),
+				Direction.Left => (x, y),
+				Direction.Right => (x, Board.GetLength(1) - y - 1),
+				_ => throw new NotImplementedException(),
+			};
+
+		bool[,] locked = new bool[Board.GetLength(0), Board.GetLength(1)];
+
+		bool update = false;
+
+		for (int i = 0; i < Board.GetLength(0); i++)
+		{
+			for (int j = 0; j < Board.GetLength(1); j++)
+			{
+				var (tempi, tempj) = Map(i, j);
+				if (Board[tempi, tempj].Value is null)
+				{
+					continue;
+				}
+				KeepChecking:
+				var (adji, adjj) = Adjacent(tempi, tempj);
+				if (adji < 0 || adji >= Board.GetLength(0) ||
+					adjj < 0 || adjj >= Board.GetLength(1) ||
+					locked[adji, adjj])
+				{
+					continue;
+				}
+				else if (Board[adji, adjj].Value is null)
+				{
+					Board[adji, adjj].Value = Board[tempi, tempj].Value;
+					Board[tempi, tempj].Value = null;
+					update = true;
+					tempi = adji;
+					tempj = adjj;
+					goto KeepChecking;
+				}
+				else if (Board[adji, adjj].Value == Board[tempi, tempj].Value)
+				{
+					Board[adji, adjj].Value += Board[tempi, tempj].Value;
+					score += Board[adji, adjj].Value.Value;
+					Board[tempi, tempj].Value = null;
+					update = true;
+					locked[adji, adjj] = true;
+				}
+			}
+		}
+
+		if (update)
+		{
+			AddCell(Board);
+		}
+
+		return update;
+	}
+
+	enum Direction
+	{
+		Up = 1,
+		Down = 2,
+		Left = 3,
+		Right = 4,
+	}
+}

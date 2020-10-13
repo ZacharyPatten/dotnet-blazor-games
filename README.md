@@ -18,6 +18,7 @@ Games:
 
 - Tic Tac Toe [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Tic_Tac_Toe.razor)
 - Minesweeper [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Minesweeper.razor)
+- 2048 [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor)
 - Sudoku [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor)
 
 Want to play the games yourself? They are hosted via GitHub Pages here:<br>https://zacharypatten.github.io/dotnet-blazor-games/
