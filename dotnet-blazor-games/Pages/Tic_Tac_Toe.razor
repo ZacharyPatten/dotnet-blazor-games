@@ -1,0 +1,143 @@
+﻿@page "/tictactoe"
+
+<h3>Tic Tac Toe</h3>
+
+<div class="row">
+	<div class="board">
+		@foreach (int i in new[] { 0, 1, 2, })
+		{
+			@foreach (int j in new[] { 0, 1, 2, })
+			{
+				<button class="cell" @onclick="() => { ClickCell(i, j); StateHasChanged(); }">@Board[i, j]</button>
+			}
+		}
+	</div>
+</div>
+<div class="row">
+	<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+</div>
+<div class="row winmessage" style="display:@gameoverstring">
+	Game Over! @WinnerString! Press "New Game" play again.
+</div>
+
+<style>
+
+	.cell {
+		background-color: #f9f9f9;
+		font-size: 1rem;
+		text-align: center;
+		width: 2rem;
+		height: 2rem;
+		outline: none !important;
+		border-style: solid;
+	}
+
+	.board {
+		display: grid;
+		grid-template-columns: auto auto auto;
+		background-color: #333;
+		width: auto;
+		height: auto;
+		column-gap: .25rem;
+		row-gap: .25rem;
+		padding: .5rem;
+		float: left;
+	}
+
+	.btn-primary {
+		margin-top: .5rem;
+	}
+</style>
+
+@code
+{
+	static char winner = default;
+	static bool matchOver = false;
+	static bool playerTurn = true;
+	static readonly Random random = new Random();
+	static char[,] Board = GenerateBoard();
+	static string WinnerString => winner == default ? "Draw" : winner + " Wins";
+	static string gameoverstring => matchOver ? "block" : "none";
+
+	static char[,] GenerateBoard()
+	{
+		matchOver = false;
+		char[,] board = new char[3, 3]
+		{
+			{ ' ', ' ', ' ', },
+			{ ' ', ' ', ' ', },
+			{ ' ', ' ', ' ', },
+		};
+		if (!playerTurn)
+		{
+			AiMove(board);
+		}
+		playerTurn = !playerTurn;
+		return board;
+	}
+
+	void ClickCell(int i, int j)
+	{
+		if (!matchOver && Board[i, j] is ' ')
+		{
+			Board[i, j] = 'X';
+			if (CheckForThree('X'))
+			{
+				matchOver = true;
+				winner = 'X';
+			}
+			else if (CheckForFullBoard())
+			{
+				matchOver = true;
+				winner = default;
+			}
+			else
+			{
+				AiMove(Board);
+			}
+		}
+	}
+
+	static void AiMove(char[,] board)
+	{
+		var possibleMoves = new List<(int X, int Y)>();
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				if (board[i, j] == ' ')
+				{
+					possibleMoves.Add((i, j));
+				}
+			}
+		}
+		int index = random.Next(0, possibleMoves.Count);
+		var (X, Y) = possibleMoves[index];
+		board[X, Y] = 'O';
+		if (CheckForThree('O'))
+		{
+			matchOver = true;
+			winner = 'O';
+		}
+		else if (CheckForFullBoard())
+		{
+			matchOver = true;
+			winner = default;
+		}
+	}
+
+	static bool CheckForThree(char c) =>
+		Board[0, 0] == c && Board[1, 0] == c && Board[2, 0] == c ||
+		Board[0, 1] == c && Board[1, 1] == c && Board[2, 1] == c ||
+		Board[0, 2] == c && Board[1, 2] == c && Board[2, 2] == c ||
+		Board[0, 0] == c && Board[0, 1] == c && Board[0, 2] == c ||
+		Board[1, 0] == c && Board[1, 1] == c && Board[1, 2] == c ||
+		Board[2, 0] == c && Board[2, 1] == c && Board[2, 2] == c ||
+		Board[0, 0] == c && Board[1, 1] == c && Board[2, 2] == c ||
+		Board[2, 0] == c && Board[1, 1] == c && Board[0, 2] == c;
+
+	static bool CheckForFullBoard() =>
+		Board[0, 0] != ' ' && Board[1, 0] != ' ' && Board[2, 0] != ' ' &&
+		Board[0, 1] != ' ' && Board[1, 1] != ' ' && Board[2, 1] != ' ' &&
+		Board[0, 2] != ' ' && Board[1, 2] != ' ' && Board[2, 2] != ' ';
+}

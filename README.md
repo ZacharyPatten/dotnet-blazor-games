@@ -15,6 +15,7 @@
 
 Games:
 
+- Tic Tac Toe
 - Minesweeper
 - Sudoku
 
