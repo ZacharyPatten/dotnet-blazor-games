@@ -15,16 +15,19 @@
 </p>
 
 <p align="center">
-	<a href="https://zacharypatten.github.io/dotnet-blazor-games/" alt="Play Games!"><img height="40" alt="Play Games!" title="Play Games!" src="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/.github/Resources/play-games-button.svg?raw=true"></a>
-	<br /><sub>Hosted On GitHub Pages</sub>
+	<a href="https://zacharypatten.github.io/dotnet-blazor-games" alt="Play Now">
+		<img height="40"src="https://img.shields.io/badge/Play-Now-gray?style=flat-square&logo=github" title="Play Now" alt="Play Now"/>
+	</a>
+	<br />
+	<sub>Hosted On GitHub Pages</sub>
 </p>
 
-|Game|\*Complexity|Notes|
-|:-|:-|:-|
-| Tic Tac Toe | 1 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Tic_Tac_Toe.razor) |
-| Minesweeper | 2 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Minesweeper.razor)|
-| 2048 | 3 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor) |
-| Sudoku | 4 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor) |
+|Game|\*Complexity|Play|Source Code|
+|:-|:-|:-|:-|
+| Tic Tac Toe | 1 | <a href="https://zacharypatten.github.io/dotnet-blazor-games/tictactoe" alt="Play Now"><img src="https://img.shields.io/badge/Play-Now-gray?style=flat-square&logo=github" title="Play Now" alt="Play Now"/></a> | <a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Tic_Tac_Toe.razor" alt="Source Code"><img src="https://img.shields.io/badge/Source-Code-gray?style=flat-square&logo=github" title="Source Code" alt="Source Code"/></a> |
+| Minesweeper | 2 | <a href="https://zacharypatten.github.io/dotnet-blazor-games/minesweeper" alt="Play Now"><img src="https://img.shields.io/badge/Play-Now-gray?style=flat-square&logo=github" title="Play Now" alt="Play Now"/></a> | <a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Minesweeper.razor" alt="Source Code"><img src="https://img.shields.io/badge/Source-Code-gray?style=flat-square&logo=github" title="Source Code" alt="Source Code"/></a> |
+| 2048 | 3 | <a href="https://zacharypatten.github.io/dotnet-blazor-games/2048" alt="Play Now"><img src="https://img.shields.io/badge/Play-Now-gray?style=flat-square&logo=github" title="Play Now" alt="Play Now"/></a> | <a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor" alt="Source Code"><img src="https://img.shields.io/badge/Source-Code-gray?style=flat-square&logo=github" title="Source Code" alt="Source Code"/></a> |
+| Sudoku | 4 | <a href="https://zacharypatten.github.io/dotnet-blazor-games/sudoku" alt="Play Now"><img src="https://img.shields.io/badge/Play-Now-gray?style=flat-square&logo=github" title="Play Now" alt="Play Now"/></a> | <a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor" alt="Source Code"><img src="https://img.shields.io/badge/Source-Code-gray?style=flat-square&logo=github" title="Source Code" alt="Source Code"/></a> |
 
 _\***Complexity**: a relative rating for how complex/advanced the source code is._
 
