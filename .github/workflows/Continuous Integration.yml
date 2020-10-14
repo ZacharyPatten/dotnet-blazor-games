@@ -14,6 +14,7 @@ on:
       - '.vscode/**'
       - '.github/**'
       - 'README.md'
+  workflow_dispatch:
 jobs:
   continuous-integration:
     runs-on: ubuntu-latest
@@ -22,7 +23,7 @@ jobs:
     - name: setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-rc.1.20452.10
+        dotnet-version: 5.0.100-rc.2.20479.15
     - name: dotnet build
       run: dotnet build --configuration 'Release'
     - name: dotnet test

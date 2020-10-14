@@ -102,3 +102,8 @@ a, .btn-link {
 .main {
 	background-color: #f6f8fa !important;
 }
+
+.main .row {
+	margin-left: 0;
+	margin-right: 0;
+}

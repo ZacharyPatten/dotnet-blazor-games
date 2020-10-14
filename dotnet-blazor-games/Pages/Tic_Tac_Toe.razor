@@ -81,12 +81,12 @@
 		if (!matchOver && Board[i, j] is ' ')
 		{
 			Board[i, j] = 'X';
-			if (CheckForThree('X'))
+			if (CheckForThree(Board, 'X'))
 			{
 				matchOver = true;
 				winner = 'X';
 			}
-			else if (CheckForFullBoard())
+			else if (CheckForFullBoard(Board))
 			{
 				matchOver = true;
 				winner = default;
@@ -114,30 +114,30 @@
 		int index = random.Next(0, possibleMoves.Count);
 		var (X, Y) = possibleMoves[index];
 		board[X, Y] = 'O';
-		if (CheckForThree('O'))
+		if (CheckForThree(board, 'O'))
 		{
 			matchOver = true;
 			winner = 'O';
 		}
-		else if (CheckForFullBoard())
+		else if (CheckForFullBoard(board))
 		{
 			matchOver = true;
 			winner = default;
 		}
 	}
 
-	static bool CheckForThree(char c) =>
-		Board[0, 0] == c && Board[1, 0] == c && Board[2, 0] == c ||
-		Board[0, 1] == c && Board[1, 1] == c && Board[2, 1] == c ||
-		Board[0, 2] == c && Board[1, 2] == c && Board[2, 2] == c ||
-		Board[0, 0] == c && Board[0, 1] == c && Board[0, 2] == c ||
-		Board[1, 0] == c && Board[1, 1] == c && Board[1, 2] == c ||
-		Board[2, 0] == c && Board[2, 1] == c && Board[2, 2] == c ||
-		Board[0, 0] == c && Board[1, 1] == c && Board[2, 2] == c ||
-		Board[2, 0] == c && Board[1, 1] == c && Board[0, 2] == c;
+	static bool CheckForThree(char[,] board, char c) =>
+		board[0, 0] == c && board[1, 0] == c && board[2, 0] == c ||
+		board[0, 1] == c && board[1, 1] == c && board[2, 1] == c ||
+		board[0, 2] == c && board[1, 2] == c && board[2, 2] == c ||
+		board[0, 0] == c && board[0, 1] == c && board[0, 2] == c ||
+		board[1, 0] == c && board[1, 1] == c && board[1, 2] == c ||
+		board[2, 0] == c && board[2, 1] == c && board[2, 2] == c ||
+		board[0, 0] == c && board[1, 1] == c && board[2, 2] == c ||
+		board[2, 0] == c && board[1, 1] == c && board[0, 2] == c;
 
-	static bool CheckForFullBoard() =>
-		Board[0, 0] != ' ' && Board[1, 0] != ' ' && Board[2, 0] != ' ' &&
-		Board[0, 1] != ' ' && Board[1, 1] != ' ' && Board[2, 1] != ' ' &&
-		Board[0, 2] != ' ' && Board[1, 2] != ' ' && Board[2, 2] != ' ';
+	static bool CheckForFullBoard(char[,] board) =>
+		board[0, 0] != ' ' && board[1, 0] != ' ' && board[2, 0] != ' ' &&
+		board[0, 1] != ' ' && board[1, 1] != ' ' && board[2, 1] != ' ' &&
+		board[0, 2] != ' ' && board[1, 2] != ' ' && board[2, 2] != ' ';
 }

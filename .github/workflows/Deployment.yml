@@ -7,6 +7,7 @@ on:
       - '.vscode/**'
       - '.github/**'
       - 'README.md'
+  workflow_dispatch:
 jobs:
   deployment:
     runs-on: ubuntu-latest
@@ -15,13 +16,13 @@ jobs:
     - name: setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-rc.1.20452.10
+        dotnet-version: 5.0.100-rc.2.20479.15
     - name: publish
       run: dotnet publish --configuration Release
     - name: index.html base tag
       run: sed -i 's/<base href="\/" \/>/<base href="\/dotnet-blazor-games\/" \/>/g' /home/runner/work/dotnet-blazor-games/dotnet-blazor-games/dotnet-blazor-games/bin/Release/net5.0/publish/wwwroot/index.html
-    #- name: 404.html
-    #  run: sed -i 's/\/?p=\//\/dotnet-blazor-games\/?p=\//g' /home/runner/work/dotnet-blazor-games/dotnet-blazor-games/dotnet-blazor-games/bin/Release/net5.0/publish/wwwroot/404.html
+    - name: 404.html
+      run: sed -i 's/\/?p=\//\/dotnet-blazor-games\/?p=\//g' /home/runner/work/dotnet-blazor-games/dotnet-blazor-games/dotnet-blazor-games/bin/Release/net5.0/publish/wwwroot/404.html
     - name: .nojekyll
       run: touch /home/runner/work/dotnet-blazor-games/dotnet-blazor-games/dotnet-blazor-games/bin/Release/net5.0/publish/wwwroot/.nojekyll
     - uses: maxheld83/ghpages@master
