@@ -14,13 +14,19 @@
 	A collection of game examples implemented as .NET blazor components primarily for providing education and inspiration. :)
 </p>
 
-Games:
+<p align="center">
+	<a href="https://zacharypatten.github.io/dotnet-blazor-games/" alt="Play Games!"><img height="40" alt="Play Games!" title="Play Games!" src="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/.github/Resources/play-games-button.svg?raw=true"></a>
+	<br /><sub>Hosted On GitHub Pages</sub>
+</p>
 
-- Tic Tac Toe [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Tic_Tac_Toe.razor)
-- Minesweeper [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Minesweeper.razor)
-- 2048 [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor)
-- Sudoku [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor)
+|Game|\*Complexity|Notes|
+|:-|:-|:-|
+| Tic Tac Toe | 1 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Tic_Tac_Toe.razor) |
+| Minesweeper | 2 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Minesweeper.razor)|
+| 2048 | 3 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor) |
+| Sudoku | 4 | [Source Code](https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor) |
 
-Want to play the games yourself? They are hosted via GitHub Pages here:<br>https://zacharypatten.github.io/dotnet-blazor-games/
+_\***Complexity**: a relative rating for how complex/advanced the source code is._
 
-If you like this repo, you may also be intersted in:<br>https://github.com/ZacharyPatten/dotnet-console-games
+> If you like this repo, you may also be intersted in:<br>
+> https://github.com/ZacharyPatten/dotnet-console-games
