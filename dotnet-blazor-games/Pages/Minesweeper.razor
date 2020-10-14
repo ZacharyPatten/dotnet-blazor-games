@@ -78,13 +78,11 @@
 
 	class Cell
 	{
-		public int I;
-		public int J;
 		public int Value = 0;
 		public bool Revealed = false;
 		public string RevealedString => Revealed ? "revealed" : "";
-		public string Danger => Revealed && AdjacentTiles(I, J).Any(c => Board[c.Row, c.Column].Value == mine) ? "danger" : "";
-		public string Safe => Revealed && AdjacentTiles(I, J).All(c => Board[c.Row, c.Column].Value != mine) ? "safe" : "";
+		public string Danger => Revealed && Value is not 0 ? "danger" : "";
+		public string Safe => Revealed && Value is 0 ? "safe" : "";
 		public string Mine => Revealed && Value is mine ? "mine" : "";
 		public string Display => !Revealed || Value is 0 ? " " : Value is mine ? "X" : Value.ToString();
 	}
