@@ -2,6 +2,12 @@
 
 <h3>Sudoku</h3>
 
+<div class="source-code-badge">
+	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor" alt="Go To Source Code">
+		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+	</a>
+</div>
+
 <div class="row">
 	<div class="sudoku">
 		@foreach (int i in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
@@ -20,7 +26,7 @@
 	</div>
 </div>
 
-<br/>
+<br />
 
 <div class="row winmessage" style="display:@Win">
 	You Win! Press "New Puzzle" to generate a new puzzle.
