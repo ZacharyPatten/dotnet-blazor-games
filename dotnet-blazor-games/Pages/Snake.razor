@@ -124,17 +124,8 @@
 		Timer.Enabled = true;
 	}
 
-	static bool temp = false;
-
 	static void PositionFood(Tile[,] board)
 	{
-		if (!temp)
-		{
-			board[7, 5] = Tile.Food;
-			temp = true;
-			return;
-		}
-
 		List<(int X, int Y)> possibleCoordinates = new List<(int X, int Y)>();
 		for (int i = 0; i < board.GetLength(0); i++)
 		{
