@@ -1,13 +1,11 @@
 ﻿@page "/minesweeper"
 
 <h3>Minesweeper</h3>
-
 <div class="source-code-badge">
 	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Minesweeper.razor" alt="Go To Source Code">
 		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
 	</a>
 </div>
-
 <div class="row">
 	<div class="board">
 		@foreach (int i in Enumerable.Range(0, Board.GetLength(0)))
@@ -20,13 +18,17 @@
 		}
 	</div>
 </div>
-
 <div class="row">
 	<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
 </div>
 <br />
 <div class="row winmessage" style="display:@Win">
 	You Win! Press "New Puzzle" to generate a new puzzle.
+</div>
+<div class="alert alert-dismissible alert-secondary">
+	<strong>Rules:</strong>
+	Reveal tiles by clicking them, but be careful not to reveal a bomb. Reveal all the non-bomb tiles and you win. The number on each tile
+	is the number of bombs that are adjacent to it (including diaganols).
 </div>
 
 <style>

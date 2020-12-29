@@ -1,48 +1,50 @@
 ﻿@page "/sudoku"
 
-<h3>Sudoku</h3>
-
-<div class="source-code-badge">
-	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor" alt="Go To Source Code">
-		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
-	</a>
-</div>
-
-<div class="row">
-	<div class="sudoku">
-		@foreach (int i in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
+<div @onkeydown="@OnKeyDown" tabindex="0">
+	<h3>Sudoku</h3>
+	<div class="source-code-badge">
+		<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Sudoku.razor" alt="Go To Source Code">
+			<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+		</a>
+	</div>
+	<div class="row">
+		<div class="sudoku">
+			@foreach (int i in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
+			{
+				<div class="sudoku-square">
+					@foreach (int j in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
+					{
+						// convert from square-cell coordiates to X, Y coordinates
+						int square_i = i - i % 3 + j / 3;
+						int square_j = (i % 3) * 3 + j % 3;
+						Cell cell = Board[square_i, square_j];
+						<button class="sudoku-cell @cell.Locked @cell.Selected @cell.Blocking" @onclick="() => { ClickCell(square_i, square_j); StateHasChanged(); }">@cell.Value</button>
+					}
+				</div>
+			}
+		</div>
+	</div>
+	<br />
+	<div class="row winmessage" style="display:@Win">
+		You Win! Press "New Puzzle" to generate a new puzzle.
+	</div>
+	<h4>Controls</h4>
+	<div class="row controls">
+		<button class="sudoku-value" @onclick="() => { TryMove(null, () => StateHasChanged()); StateHasChanged(); }">X</button>
+		@foreach (int i in new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, })
 		{
-			<div class="sudoku-square">
-				@foreach (int j in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, })
-				{
-					// convert from square-cell coordiates to X, Y coordinates
-					int square_i = i - i % 3 + j / 3;
-					int square_j = (i % 3) * 3 + j % 3;
-					Cell cell = Board[square_i, square_j];
-				<button class="sudoku-cell @cell.Locked @cell.Selected @cell.Blocking" @onclick="() => { ClickCell(square_i, square_j); StateHasChanged(); }">@cell.Value</button>
-				}
-			</div>
+			<button class="sudoku-value" @onclick="() => { TryMove(i, () => StateHasChanged()); StateHasChanged(); }">@i</button>
 		}
 	</div>
-</div>
-
-<br />
-
-<div class="row winmessage" style="display:@Win">
-	You Win! Press "New Puzzle" to generate a new puzzle.
-</div>
-
-<h4>Controls</h4>
-
-<div class="row controls">
-	<button class="sudoku-value" @onclick="() => { TryMove(null, () => StateHasChanged()); StateHasChanged(); }">X</button>
-	@foreach (int i in new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, })
-	{
-		<button class="sudoku-value" @onclick="() => { TryMove(i, () => StateHasChanged()); StateHasChanged(); }">@i</button>
-	}
-</div>
-<div class="row controls">
-	<button class="btn btn-primary" @onclick="() => { GenerateNewPuzzle(); StateHasChanged(); }">New Puzzle</button>
+	<div class="row controls">
+		<button class="btn btn-primary" @onclick="() => { GenerateNewPuzzle(); StateHasChanged(); }">New Puzzle</button>
+	</div>
+	<div class="alert alert-dismissible alert-secondary">
+		<strong>Rules:</strong>
+		Try to fill in the entire puzzle with the numbers 1-9. No column, row, or square can have a duplicate value.
+		Click on a tile on the board and then click a number to enter the number at the selected tile.
+		Keyboard inputs (1-9) are supported if you <i>click on the board</i>.
+	</div>
 </div>
 
 <style>
@@ -283,6 +285,23 @@
 		}
 
 		return cellBoard;
+	}
+
+	void OnKeyDown(KeyboardEventArgs e)
+	{
+		switch (e.Key)
+		{
+			case "1": TryMove(1, () => StateHasChanged()); StateHasChanged(); break;
+			case "2": TryMove(2, () => StateHasChanged()); StateHasChanged(); break;
+			case "3": TryMove(3, () => StateHasChanged()); StateHasChanged(); break;
+			case "4": TryMove(4, () => StateHasChanged()); StateHasChanged(); break;
+			case "5": TryMove(5, () => StateHasChanged()); StateHasChanged(); break;
+			case "6": TryMove(6, () => StateHasChanged()); StateHasChanged(); break;
+			case "7": TryMove(7, () => StateHasChanged()); StateHasChanged(); break;
+			case "8": TryMove(8, () => StateHasChanged()); StateHasChanged(); break;
+			case "9": TryMove(9, () => StateHasChanged()); StateHasChanged(); break;
+			default: return;
+		}
 	}
 
 	static void TryMove(int? value, Action refresh)

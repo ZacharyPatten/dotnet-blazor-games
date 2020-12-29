@@ -1,6 +1,6 @@
 ﻿@page "/snake"
 
-<div @onkeydown="@OnKeyDown" tabindex="0" >
+<div @onkeydown="@OnKeyDown" tabindex="0">
 	<h3>Snake</h3>
 	<div class="source-code-badge">
 		<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Snake.razor" alt="Go To Source Code">
@@ -31,6 +31,11 @@
 	</div>
 	<div class="row gameovermessage" style="display:@(GameOver ? "block" : "none")">
 		Game Over!
+	</div>
+	<div class="alert alert-dismissible alert-secondary">
+		<strong>Rules:</strong>
+		Collect as many blue tiles as you can without running into a wall or yourself. To start, press any of the arrow keys.
+		Keyboard inputs (←, →, ↑, ↓) are supported if you <i>click on the board</i>.
 	</div>
 </div>
 

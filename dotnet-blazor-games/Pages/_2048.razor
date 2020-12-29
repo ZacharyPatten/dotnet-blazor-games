@@ -1,44 +1,46 @@
 ﻿@page "/2048"
-
-<h3>2048</h3>
-
-<div class="source-code-badge">
-	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor" alt="Go To Source Code">
-		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
-	</a>
-</div>
-
-<div class="row">
-	<div class="board">
-		@foreach (int i in Enumerable.Range(0, Board.GetLength(0)))
-		{
-			@foreach (int j in Enumerable.Range(0, Board.GetLength(1)))
+<div @onkeydown="@OnKeyDown" tabindex="0">
+	<h3>2048</h3>
+	<div class="source-code-badge">
+		<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/_2048.razor" alt="Go To Source Code">
+			<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+		</a>
+	</div>
+	<div class="row">
+		<div class="board">
+			@foreach (int i in Enumerable.Range(0, Board.GetLength(0)))
 			{
-				Cell cell = Board[i, j];
-				<div class="cell" style="background-color: @cell.BackgroundColor; color: @cell.Color;">@cell.Value</div>
+				@foreach (int j in Enumerable.Range(0, Board.GetLength(1)))
+				{
+					Cell cell = Board[i, j];
+					<div class="cell" style="background-color: @cell.BackgroundColor; color: @cell.Color;">@cell.Value</div>
+				}
 			}
-		}
+		</div>
 	</div>
-</div>
-<div class="row">
-	<div>Score: @score</div>
-</div>
-
-<br />
-
-<h4>Controls</h4>
-
-<div class="row">
-	<div class="controls">
-		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Left); StateHasChanged(); }">←</button>
-		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Right); StateHasChanged(); }">→</button>
-		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Up); StateHasChanged(); }">↑</button>
-		<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Down); StateHasChanged(); }">↓</button>
+	<div class="row">
+		<div>Score: @score</div>
 	</div>
-</div>
-<div class="row">
-	<div class="controls">
-		<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+	<br />
+	<h4>Controls</h4>
+	<div class="row">
+		<div class="controls">
+			<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Left); StateHasChanged(); }">←</button>
+			<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Right); StateHasChanged(); }">→</button>
+			<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Up); StateHasChanged(); }">↑</button>
+			<button class="btn btn-primary" @onclick="() => { TryUpdate(Direction.Down); StateHasChanged(); }">↓</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="controls">
+			<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+		</div>
+	</div>
+	<div class="alert alert-dismissible alert-secondary">
+		<strong>Rules:</strong>
+		Use the arrows to slide all the tiles in one direction: up, down, left, or right. Equal tiles will merge together to make
+		larger tiles: 2 + 2 = 4, 4 + 4 = 8, etc. The game is over when you have no more valid moves left.
+		Keyboard inputs (←, →, ↑, ↓) are supported if you <i>click on the board</i>.
 	</div>
 </div>
 
@@ -174,6 +176,19 @@
 		}
 	}
 
+	void OnKeyDown(KeyboardEventArgs e)
+	{
+		switch (e.Key)
+		{
+			case "ArrowLeft":  TryUpdate(Direction.Left); break;
+			case "ArrowRight": TryUpdate(Direction.Right); break;
+			case "ArrowUp":    TryUpdate(Direction.Up); break;
+			case "ArrowDown":  TryUpdate(Direction.Down); break;
+			default: return;
+		}
+		StateHasChanged();
+	}
+
 	static bool TryUpdate(Direction direction)
 	{
 		(int X, int Y) Adjacent(int x, int y) =>
@@ -209,7 +224,7 @@
 				{
 					continue;
 				}
-				KeepChecking:
+			KeepChecking:
 				var (adji, adjj) = Adjacent(tempi, tempj);
 				if (adji < 0 || adji >= Board.GetLength(0) ||
 					adjj < 0 || adjj >= Board.GetLength(1) ||
