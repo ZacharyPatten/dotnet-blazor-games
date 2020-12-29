@@ -29,14 +29,14 @@
 	<div class="row controls">
 		<button class="btn btn-primary" @onclick="() => { Reset(); StateHasChanged(); }">New Game</button>
 	</div>
-	<div class="row winmessage" style="display:@(GameOver ? "block" : "none")">
-		You Win! Press "New Puzzle" to generate a new puzzle.
+	<div class="row gameovermessage" style="display:@(GameOver ? "block" : "none")">
+		Game Over!
 	</div>
 </div>
 
 <style>
 
-	.winmessage {
+	.gameovermessage {
 		margin-bottom: 1rem;
 	}
 
@@ -89,6 +89,7 @@
 		GameOver = false;
 		SnakeQueue = snakeQueue;
 		Board = board;
+
 	}
 
 	enum Direction
