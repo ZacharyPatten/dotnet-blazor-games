@@ -83,7 +83,7 @@ a, .btn-link {
 
 .sidebar-nav {
 	border-right: 1px solid #e1e4e8 !important;
-	height: 100%;
+	/*height: 100%;*/
 }
 
 .nav-item a {
@@ -110,4 +110,8 @@ a, .btn-link {
 
 .source-code-badge {
 	margin-bottom: 10px;
+}
+
+:focus {
+	outline: none;
 }
