@@ -2,6 +2,12 @@
 
 <h3>Maze</h3>
 
+<div class="source-code-badge">
+	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Maze.razor" alt="Go To Source Code">
+		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+	</a>
+</div>
+
 <div class="row">
 	@((MarkupString)MazeRender)
 </div>
@@ -96,8 +102,6 @@
 
 @code
 {
-	// see MazeCode.cs
-
 	static bool Win = false;
 	static Tile[,] CurrentMaze = Generate(10, 10);
 	static string MazeRender = RenderToSvg(CurrentMaze);
@@ -421,7 +425,7 @@
 	{
 		System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
 		stringBuilder.AppendLine();
-		stringBuilder.AppendLine($@"<svg width=""70vmin"" height=""70vmin"" viewbox=""0 0 {maze.GetLength(0) * 3} {maze.GetLength(1) * 3}"" preserveAspectRatio=""xMinYMin meet"" xmlns=""http://www.w3.org/2000/svg"" xmlns:svg=""http://www.w3.org/2000/svg"">");
+		stringBuilder.AppendLine($@"<svg width=""70vmin"" height=""70vmin"" viewBox=""0 0 {maze.GetLength(0) * 3} {maze.GetLength(1) * 3}"" preserveAspectRatio=""xMinYMin meet"" xmlns=""http://www.w3.org/2000/svg"" xmlns:svg=""http://www.w3.org/2000/svg"">");
 		for (int i = 0; i < maze.GetLength(0); i++)
 		{
 			for (int j = 0; j < maze.GetLength(1); j++)

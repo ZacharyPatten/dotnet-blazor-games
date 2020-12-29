@@ -1,0 +1,179 @@
+﻿@page "/snake"
+
+<h3>Snake</h3>
+
+<div class="source-code-badge">
+	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Snake.razor" alt="Go To Source Code">
+		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+	</a>
+</div>
+
+<div class="row">
+	<svg width="60vmin" height="60vmin" viewBox="0 0 @Board.GetLength(0) @Board.GetLength(1)" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+		@for (int i = 0; i < Board.GetLength(0); i++)
+		{
+			@for (int j = 0; j < Board.GetLength(1); j++)
+			{
+				<rect fill="@(Board[i, j] is Tile.Snake ? "#fff" : Board[i, j] is Tile.Food ? "#7abafc" : "#24292e")" stroke="#24292e" stroke-width="0" width=".95" height=".95" x="@(i + .025)" y="@(j + .025)"/>
+			}
+		}
+	</svg>
+</div>
+
+<div class="row">
+	<div class="controls">
+		<button class="btn btn-primary" @onclick="() => { CurrentDirection = Direction.Left;  if (Refresh is null) { Refresh = () => StateHasChanged(); }; Timer.Enabled = true; }">←</button>
+		<button class="btn btn-primary" @onclick="() => { CurrentDirection = Direction.Right; if (Refresh is null) { Refresh = () => StateHasChanged(); }; Timer.Enabled = true; }">→</button>
+		<button class="btn btn-primary" @onclick="() => { CurrentDirection = Direction.Up;    if (Refresh is null) { Refresh = () => StateHasChanged(); }; Timer.Enabled = true; }">↑</button>
+		<button class="btn btn-primary" @onclick="() => { CurrentDirection = Direction.Down;  if (Refresh is null) { Refresh = () => StateHasChanged(); }; Timer.Enabled = true; }">↓</button>
+	</div>
+</div>
+
+<div class="row controls">
+	<button class="btn btn-primary" @onclick="() => { Reset(); StateHasChanged(); }">New Maze</button>
+</div>
+
+<div class="row winmessage" style="display:@(GameOver ? "block" : "none")">
+	You Win! Press "New Puzzle" to generate a new puzzle.
+</div>
+
+<style>
+
+	.winmessage {
+		margin-bottom: 1rem;
+	}
+
+	.controls {
+		margin-top: 1rem;
+	}
+
+		.controls button {
+			margin-right: .5rem;
+			margin-bottom: .5rem;
+		}
+
+</style>
+
+@code
+{
+	static Snake()
+	{
+		Reset();
+	}
+
+	static Action Refresh;
+	static readonly Random random = new Random();
+	static int Width = 15;
+	static int Height = 15;
+	static bool GameOver = false;
+	static Tile[,] Board;
+	static Queue<(int I, int J)> SnakeQueue;
+
+
+	static Direction CurrentDirection;
+	static readonly System.Timers.Timer Timer = ResetTimer();
+
+	static System.Timers.Timer ResetTimer()
+	{
+		System.Timers.Timer timer = new System.Timers.Timer();
+		timer.Elapsed += (s, e) => { Update(); Refresh?.Invoke(); };
+		return timer;
+	}
+
+	static void Reset()
+	{
+		Queue<(int I, int J)> snakeQueue = new Queue<(int I, int J)>();
+		snakeQueue.Enqueue((Width / 2, Height / 2));
+		Tile[,] board = new Tile[Width, Height];
+		var snakeHead = snakeQueue.Peek();
+		board[snakeHead.I, snakeHead.J] = Tile.Snake;
+		PositionFood(board);
+		Timer.Interval = 300;
+		Timer.Enabled = false;
+		GameOver = false;
+		SnakeQueue = snakeQueue;
+		Board = board;
+	}
+
+	enum Direction
+	{
+		None = 0,
+		Up = 1,
+		Down = 2,
+		Left = 3,
+		Right = 4,
+	}
+
+	enum Tile
+	{
+		Open = 0,
+		Snake,
+		Food,
+	}
+
+	static void PositionFood(Tile[,] board)
+	{
+		List<(int X, int Y)> possibleCoordinates = new List<(int X, int Y)>();
+		for (int i = 0; i < board.GetLength(0); i++)
+		{
+			for (int j = 0; j < board.GetLength(1); j++)
+			{
+				if (board[i, j] == Tile.Open)
+				{
+					possibleCoordinates.Add((i, j));
+				}
+			}
+		}
+		int index = random.Next(possibleCoordinates.Count);
+		(int X, int Y) = possibleCoordinates[index];
+		board[X, Y] = Tile.Food;
+	}
+
+	static void Update()
+	{
+		Tile[,] board = Board;
+		if (GameOver || !Timer.Enabled)
+		{
+			Timer.Enabled = false;
+			return;
+		}
+		var head = SnakeQueue.Peek();
+		if (CurrentDirection is Direction.Up && head.J < 0 ||
+			CurrentDirection is Direction.Down && head.J >= Board.GetLength(1) - 1 ||
+			CurrentDirection is Direction.Left && head.I < 0 ||
+			CurrentDirection is Direction.Up && head.I >= Board.GetLength(0) - 1)
+		{
+			GameOver = true;
+			return;
+		}
+		int nextI =
+			CurrentDirection is Direction.Left ? head.I - 1 :
+			CurrentDirection is Direction.Right ? head.I + 1 :
+			head.I;
+		int nextJ =
+			CurrentDirection is Direction.Up ? head.J - 1 :
+			CurrentDirection is Direction.Down ? head.J + 1 :
+			head.J;
+		if (Board[nextI, nextJ] is Tile.Snake)
+		{
+			GameOver = true;
+		}
+		else if (Board[nextI, nextJ] is Tile.Food)
+		{
+			Board[nextI, nextJ] = Tile.Snake;
+			Refresh();
+			SnakeQueue.Enqueue((nextI, nextJ));
+			PositionFood(Board);
+			Refresh();
+		}
+		else
+		{
+			var tail = SnakeQueue.Dequeue();
+			Board[tail.I, tail.J] = Tile.Open;
+			Refresh();
+			SnakeQueue.Enqueue((nextI, nextJ));
+			Board[nextI, nextJ] = Tile.Snake;
+			Refresh();
+		}
+	}
+}
