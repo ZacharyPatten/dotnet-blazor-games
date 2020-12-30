@@ -1,0 +1,71 @@
+﻿@page "/helicopter"
+
+<div @onkeydown="@OnKeyDown" tabindex="0">
+	<h3>Helicopter</h3>
+	<div class="source-code-badge">
+		<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Maze.razor" alt="Go To Source Code">
+			<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+		</a>
+	</div>
+	<div class="row">
+		@*@((MarkupString)MazeRender)*@
+	</div>
+	<div class="row">
+		<div class="controls">
+			<button class="btn btn-primary" @onclick="() => {  }">→</button>
+			<button class="btn btn-primary" @onclick="() => {  }">↑</button>
+			<button class="btn btn-primary" @onclick="() => {  }">↓</button>
+		</div>
+	</div>
+	<div class="row controls">
+		<button class="btn btn-primary" @onclick="() => {  }">New Game</button>
+	</div>
+	<div class="row winmessage" style="display:@(GameOver ? "block" : "none")">
+		Game Over! Press "New Game" to play again.
+	</div>
+	<div class="alert alert-dismissible alert-secondary">
+		<strong>Rules:</strong>
+		Helicopter is a side scrolling shooter. Protect the earth from the aliens. Let even a single alien through and we all die.
+	</div>
+</div>
+
+@code
+{
+	bool GameOver = false;
+	bool Running = false;
+	double BulletSpeed = 1d;
+	double AlienSpeed = 1d;
+	List<(double X, double Y)> Bullets = new List<(double X, double Y)>();
+
+	void OnKeyDown(KeyboardEventArgs e)
+	{
+		switch (e.Key)
+		{
+			case "ArrowRight":  break;
+			case "ArrowUp":  break;
+			case "ArrowDown":  break;
+			default: return;
+		}
+	}
+
+	void MoveUp()
+	{
+
+	}
+
+	void MoveDown()
+	{
+
+	}
+
+	void Shoot()
+	{
+
+	}
+
+	void Start()
+	{
+
+	}
+
+}

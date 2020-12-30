@@ -19,7 +19,7 @@
 	</div>
 </div>
 <div class="row">
-	<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+	<button class="btn btn-primary" @onclick="() => { _board = GenerateBoard(); StateHasChanged(); }">New Game</button>
 </div>
 <br />
 <div class="row winmessage" style="display:@Win">
@@ -73,16 +73,18 @@
 
 @code
 {
-	static Random random = new Random();
+	Random random = new Random();
 
 	const int mine = -1;
-	static int Height = 10;
-	static int Width = 10;
-	static double MineRatio = .1d;
-	static int MineCount => (int)(Width * Height * MineRatio);
-	static string GridColumns => "auto ".Repeat(Width);
-	static Cell[,] Board = GenerateBoard();
-	static string Win => WinCheck() ? "block" : "none";
+	int Height = 10;
+	int Width = 10;
+	double MineRatio = .1d;
+	int MineCount => (int)(Width * Height * MineRatio);
+	string GridColumns => "auto ".Repeat(Width);
+
+	Cell[,] _board;
+	Cell[,] Board => _board ?? (_board = GenerateBoard());
+	string Win => WinCheck() ? "block" : "none";
 
 	class Cell
 	{
@@ -112,7 +114,7 @@
 
 	}
 
-	static IEnumerable<(int Row, int Column)> AdjacentTiles(int column, int row)
+	IEnumerable<(int Row, int Column)> AdjacentTiles(int column, int row)
 	{
 		//    A B C
 		//    D + E
@@ -136,7 +138,7 @@
 		if (row < Height - 1 && column < Width - 1) yield return (row + 1, column + 1);
 	}
 
-	static Cell[,] GenerateBoard()
+	Cell[,] GenerateBoard()
 	{
 		Cell[,] board = new Cell[Width, Height];
 		for (int i = 0; i < Width; i++)
@@ -162,7 +164,7 @@
 		return board;
 	}
 
-	static void Reveal(int row, int column)
+	void Reveal(int row, int column)
 	{
 		Board[row, column].Revealed = true;
 		if (Board[row, column].Value == 0)
@@ -177,7 +179,7 @@
 		}
 	}
 
-	static bool WinCheck()
+	bool WinCheck()
 	{
 		int revealCount = 0;
 		for (int i = 0; i < Width; i++)

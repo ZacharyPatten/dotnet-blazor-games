@@ -18,7 +18,7 @@
 	</div>
 </div>
 <div class="row">
-	<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+	<button class="btn btn-primary" @onclick="() => { _board = GenerateBoard(); StateHasChanged(); }">New Game</button>
 </div>
 <div class="row winmessage" style="display:@gameoverstring">
 	Game Over! @WinnerString! Press "New Game" play again.
@@ -59,23 +59,24 @@
 
 @code
 {
-	static char winner = default;
-	static bool matchOver = false;
-	static bool playerTurn = true;
-	static readonly Random random = new Random();
-	static char[,] Board = GenerateBoard();
-	static string WinnerString => winner == default ? "Draw" : winner + " Wins";
-	static string gameoverstring => matchOver ? "block" : "none";
+	char winner = default;
+	bool matchOver = false;
+	bool playerTurn = true;
+	Random random = new Random();
+	string WinnerString => winner == default ? "Draw" : winner + " Wins";
+	string gameoverstring => matchOver ? "block" : "none";
+	char[,] _board;
+	char[,] Board => _board ?? (_board = GenerateBoard());
 
-	static char[,] GenerateBoard()
+	char[,] GenerateBoard()
 	{
 		matchOver = false;
 		char[,] board = new char[3, 3]
 		{
-		{ ' ', ' ', ' ', },
-		{ ' ', ' ', ' ', },
-		{ ' ', ' ', ' ', },
-			};
+			{ ' ', ' ', ' ', },
+			{ ' ', ' ', ' ', },
+			{ ' ', ' ', ' ', },
+		};
 		if (!playerTurn)
 		{
 			AiMove(board);
@@ -106,7 +107,7 @@
 		}
 	}
 
-	static void AiMove(char[,] board)
+	void AiMove(char[,] board)
 	{
 		var possibleMoves = new List<(int X, int Y)>();
 		for (int i = 0; i < 3; i++)
@@ -134,7 +135,7 @@
 		}
 	}
 
-	static bool CheckForThree(char[,] board, char c) =>
+	bool CheckForThree(char[,] board, char c) =>
 		board[0, 0] == c && board[1, 0] == c && board[2, 0] == c ||
 		board[0, 1] == c && board[1, 1] == c && board[2, 1] == c ||
 		board[0, 2] == c && board[1, 2] == c && board[2, 2] == c ||
@@ -144,7 +145,7 @@
 		board[0, 0] == c && board[1, 1] == c && board[2, 2] == c ||
 		board[2, 0] == c && board[1, 1] == c && board[0, 2] == c;
 
-	static bool CheckForFullBoard(char[,] board) =>
+	 bool CheckForFullBoard(char[,] board) =>
 		board[0, 0] != ' ' && board[1, 0] != ' ' && board[2, 0] != ' ' &&
 		board[0, 1] != ' ' && board[1, 1] != ' ' && board[2, 1] != ' ' &&
 		board[0, 2] != ' ' && board[1, 2] != ' ' && board[2, 2] != ' ';

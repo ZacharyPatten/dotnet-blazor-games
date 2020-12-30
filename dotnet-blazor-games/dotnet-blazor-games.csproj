@@ -8,4 +8,9 @@
 		<PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
 		<PackageReference Include="Towel" Version="1.0.20-alpha" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Resources\helicopter.svg">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

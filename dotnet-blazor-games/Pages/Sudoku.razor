@@ -118,11 +118,12 @@
 
 @code
 {
-	static Cell[,] Board = Generate();
+	Cell[,] _board;
+	Cell[,] Board => _board ?? (_board = Generate());
 
-	static Cell SelectedCell;
+	Cell SelectedCell;
 
-	static string Win = "none";
+	string Win = "none";
 
 	class Cell
 	{
@@ -151,7 +152,7 @@
 
 	void GenerateNewPuzzle()
 	{
-		Board = Generate();
+		_board = Generate();
 		if (SelectedCell is not null)
 		{
 			SelectedCell.Selected = "";
@@ -161,7 +162,7 @@
 		StateHasChanged();
 	}
 
-	static Cell[,] Generate(
+	Cell[,] Generate(
 		Random random = null,
 		int? blanks = null)
 	{
@@ -304,7 +305,7 @@
 		}
 	}
 
-	static void TryMove(int? value, Action refresh)
+	void TryMove(int? value, Action refresh)
 	{
 		void Blocking(int a, int b)
 		{
@@ -375,7 +376,7 @@
 		CheckForWin();
 	}
 
-	static void CheckForWin()
+	void CheckForWin()
 	{
 		for (int i = 0; i < 9; i++)
 		{

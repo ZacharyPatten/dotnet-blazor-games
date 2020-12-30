@@ -33,7 +33,7 @@
 	</div>
 	<div class="row">
 		<div class="controls">
-			<button class="btn btn-primary" @onclick="() => { Board = GenerateBoard(); StateHasChanged(); }">New Game</button>
+			<button class="btn btn-primary" @onclick="() => { _board = GenerateBoard(); StateHasChanged(); }">New Game</button>
 		</div>
 	</div>
 	<div class="alert alert-dismissible alert-secondary">
@@ -93,9 +93,10 @@
 @code
 {
 	static Random random = new Random();
-	static bool GameOver = false;
-	static Cell[,] Board = GenerateBoard();
-	static int score = 0;
+	bool GameOver = false;
+	Cell[,] _board;
+	Cell[,] Board => _board ?? (_board = GenerateBoard());
+	int score = 0;
 	static Dictionary<int, System.Drawing.Color> colors = new Dictionary<int, System.Drawing.Color>();
 
 	class Cell
@@ -133,7 +134,7 @@
 		}
 	}
 
-	static Cell[,] GenerateBoard()
+	Cell[,] GenerateBoard()
 	{
 		GameOver = false;
 		score = 0;
@@ -150,7 +151,7 @@
 		return board;
 	}
 
-	static void AddCell(Cell[,] board)
+	void AddCell(Cell[,] board)
 	{
 		bool IsNull((int X, int Y) point) => board[point.X, point.Y].Value is null;
 		int nullCount = BoardValues(board).Count(IsNull);
@@ -165,7 +166,7 @@
 		score += 2;
 	}
 
-	static IEnumerable<(int, int)> BoardValues(Cell[,] board)
+	IEnumerable<(int, int)> BoardValues(Cell[,] board)
 	{
 		for (int i = board.GetLength(0) - 1; i >= 0; i--)
 		{
@@ -189,7 +190,7 @@
 		StateHasChanged();
 	}
 
-	static bool TryUpdate(Direction direction)
+	bool TryUpdate(Direction direction)
 	{
 		(int X, int Y) Adjacent(int x, int y) =>
 			direction switch
