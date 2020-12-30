@@ -96,7 +96,10 @@
 		{
 			GameOver = true;
 		}
-		HighScore = Math.Max(Index + 1, HighScore);
+		else
+		{
+			HighScore = Math.Max(Index + 1, HighScore);
+		}
 		Index++;
 		System.Timers.Timer timer = new System.Timers.Timer();
 		timer.Interval = ButtonTime;
