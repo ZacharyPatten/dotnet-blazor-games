@@ -1,0 +1,165 @@
+﻿@page "/simon"
+
+<h3>Simon</h3>
+<div class="source-code-badge">
+	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Rock_Paper_Scissors.razor" alt="Go To Source Code">
+		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+	</a>
+</div>
+<div class="row">
+	<div class="controls">
+		<button class="btn simon red  @(IsLit[(int)Button.Red] ? "lit" : "")" @onclick="() => { TryPress(Button.Red); }"></button>
+		<button class="btn simon green  @(IsLit[(int)Button.Green] ? "lit" : "")" @onclick="() => { TryPress(Button.Green); }"></button>
+		<button class="btn simon blue  @(IsLit[(int)Button.Blue] ? "lit" : "")" @onclick="() => { TryPress(Button.Blue); }"></button>
+		<button class="btn simon yellow @(IsLit[(int)Button.Yellow] ? "lit" : "")" @onclick="() => { TryPress(Button.Yellow); }"></button>
+	</div>
+</div>
+<div class="row">
+	<button class="btn btn-primary" @onclick="StartNewGame">Start New Game</button>
+</div>
+<div class="row" style="display:@(GameOver ? "block" : "none")">
+	Game Over! Press "Start New Game" to play again.
+</div>
+<div class="row">
+	High Score: @HighScore
+</div>
+<div class="alert alert-dismissible alert-secondary">
+	<strong>Rules:</strong>
+	Simon is a memory game. The computer will genernerate a random sequence of button presses. Repeat the pattern back the the computer. Every time you successfully 
+	repeat the pattern another random button is added to it: 1 button, 2 buttons, 3 buttons, etc. Mess up the pattern and you must start from the beginning. Press "Start New Game" to begin.
+</div>
+
+<style>
+
+	.controls {
+		margin-top: 1rem;
+	}
+
+		.controls button {
+			margin-right: .5rem;
+			margin-bottom: .5rem;
+		}
+
+	.simon { width: 4rem; height: 4rem; }
+
+	.simon.red { background-color: darkred; }
+	.simon.green { background-color: darkgreen; }
+	.simon.blue { background-color: darkblue; }
+	.simon.yellow { background-color: darkgoldenrod; }
+
+	.simon.red.lit { background-color: lightcoral; }
+	.simon.green.lit { background-color: lightgreen; }
+	.simon.blue.lit { background-color: lightblue; }
+	.simon.yellow.lit { background-color: lightgoldenrodyellow; }
+
+</style>
+
+@code
+{
+	Random random = new Random();
+	List<Button> pattern = new List<Button>();
+	bool[] IsLit = new bool[4];
+	int Index;
+	int HighScore;
+	bool Busy;
+	bool GameOver;
+	double ButtonTime = 500; // milliseconds
+	bool Started = false;
+
+	void StartNewGame()
+	{
+		if (!Busy)
+		{
+			Started = true;
+			GameOver = false;
+			IsLit[(int)Button.Red] = false;
+			IsLit[(int)Button.Green] = false;
+			IsLit[(int)Button.Blue] = false;
+			IsLit[(int)Button.Yellow] = false;
+			Index = 0;
+			Busy = false;
+			pattern.Clear();
+			pattern.Add((Button)random.Next(4));
+			PlayPattern();
+		}
+	}
+
+	void TryPress(Button button)
+	{
+		if (Busy || GameOver || !Started)
+		{
+			return;
+		}
+		Busy = true;
+		IsLit[(int)button] = true;
+		if (pattern[Index] != button)
+		{
+			GameOver = true;
+		}
+		HighScore = Math.Max(Index + 1, HighScore);
+		Index++;
+		System.Timers.Timer timer = new System.Timers.Timer();
+		timer.Interval = ButtonTime;
+		timer.Elapsed += (_, _) =>
+		{
+			Busy = false;
+			IsLit[(int)button] = false;
+			timer.Enabled = false;
+			StateHasChanged();
+			if (!GameOver && Index >= pattern.Count)
+			{
+				Index = 0;
+				pattern.Add((Button)random.Next(4));
+				PlayPattern();
+			}
+		};
+		timer.Enabled = true;
+		StateHasChanged();
+	}
+
+	void PlayPattern()
+	{
+		Busy = true;
+		int index = 0;
+		bool first = true;
+		System.Timers.Timer timer = new System.Timers.Timer();
+		timer.Interval = ButtonTime;
+		timer.Elapsed += (_, _) =>
+		{
+			if (first)
+			{
+				IsLit[(int)pattern[index]] = true;
+				StateHasChanged();
+				first = false;
+				return;
+			}
+			if (IsLit[(int)pattern[index]])
+			{
+				IsLit[(int)pattern[index]] = false;
+				StateHasChanged();
+				return;
+			}
+			index++;
+			if (index >= pattern.Count)
+			{
+				timer.Enabled = false;
+				Busy = false;
+			}
+			else
+			{
+				IsLit[(int)pattern[index]] = true;
+			}
+			StateHasChanged();
+		};
+		timer.Enabled = true;
+		StateHasChanged();
+	}
+
+	enum Button
+	{
+		Red = 0,
+		Green = 1,
+		Blue = 2,
+		Yellow = 3,
+	}
+}

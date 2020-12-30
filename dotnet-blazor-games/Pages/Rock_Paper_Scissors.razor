@@ -1,34 +1,32 @@
 ﻿@page "/rockpaperscissors"
 
-<div @onkeydown="@OnKeyDown" tabindex="0">
-	<h3>Rock Paper Scissors</h3>
-	<div class="source-code-badge">
-		<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Rock_Paper_Scissors.razor" alt="Go To Source Code">
-			<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
-		</a>
+<h3>Rock Paper Scissors</h3>
+<div class="source-code-badge">
+	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Rock_Paper_Scissors.razor" alt="Go To Source Code">
+		<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+	</a>
+</div>
+<div class="row">
+	<div class="controls">
+		<button class="btn btn-primary" @onclick="() => { Guess(Move.Rock); }">Rock</button>
+		<button class="btn btn-primary" @onclick="() => { Guess(Move.Paper); }">Paper</button>
+		<button class="btn btn-primary" @onclick="() => { Guess(Move.Scissors); }">Scissors</button>
 	</div>
-	<div class="row">
-		<div class="controls">
-			<button class="btn btn-primary" @onclick="() => { Guess(Move.Rock); }">Rock</button>
-			<button class="btn btn-primary" @onclick="() => { Guess(Move.Paper); }">Paper</button>
-			<button class="btn btn-primary" @onclick="() => { Guess(Move.Scissors); }">Scissors</button>
-		</div>
-	</div>
-	<div class="row">
-		@SelectedMoves
-	</div>
-	<div class="row">
-		@Message
-	</div>
-	<div class="row">
-		Wins: @Wins
-		Losses: @Losses
-		Draws: @Draws
-	</div>
-	<div class="alert alert-dismissible alert-secondary">
-		<strong>Rules:</strong>
-		Guess Rock, Paper, or Scissors, and the computer will do the same. Rock beats Scissors, Scissors beats paper, and Paper beats Rock.
-	</div>
+</div>
+<div class="row">
+	@SelectedMoves
+</div>
+<div class="row">
+	@Message
+</div>
+<div class="row">
+	Wins: @Wins
+	Losses: @Losses
+	Draws: @Draws
+</div>
+<div class="alert alert-dismissible alert-secondary">
+	<strong>Rules:</strong>
+	Guess Rock, Paper, or Scissors, and the computer will do the same. Rock beats Scissors, Scissors beats paper, and Paper beats Rock.
 </div>
 
 <style>
@@ -52,17 +50,6 @@
 	Random random = new Random();
 	string SelectedMoves;
 	string Message;
-
-	void OnKeyDown(KeyboardEventArgs e)
-	{
-		switch (e.Key)
-		{
-			case "R": Guess(Move.Rock);     break;
-			case "P": Guess(Move.Paper);    break;
-			case "S": Guess(Move.Scissors); break;
-			default: return;
-		}
-	}
 
 	void Guess(Move playerMove)
 	{
