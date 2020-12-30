@@ -8,64 +8,259 @@
 		</a>
 	</div>
 	<div class="row">
-		@*@((MarkupString)MazeRender)*@
+		@((MarkupString)RenderToSvg())
 	</div>
 	<div class="row">
 		<div class="controls">
-			<button class="btn btn-primary" @onclick="() => {  }">→</button>
-			<button class="btn btn-primary" @onclick="() => {  }">↑</button>
-			<button class="btn btn-primary" @onclick="() => {  }">↓</button>
+			<button class="btn btn-primary" @onclick="() => { if (!GameOver && !Running) { Start(); } Shoot(); }">→</button>
+			<button class="btn btn-primary" @onclick="() => { if (!GameOver && !Running) { Start(); } MoveUp(); }">↑</button>
+			<button class="btn btn-primary" @onclick="() => { if (!GameOver && !Running) { Start(); } MoveDown(); }">↓</button>
 		</div>
 	</div>
 	<div class="row controls">
-		<button class="btn btn-primary" @onclick="() => {  }">New Game</button>
+		<button class="btn btn-primary" @onclick="Reset">New Game</button>
 	</div>
 	<div class="row winmessage" style="display:@(GameOver ? "block" : "none")">
-		Game Over! Press "New Game" to play again.
+		An alien made it past you! Game Over! Press "New Game" to play again.
 	</div>
 	<div class="alert alert-dismissible alert-secondary">
 		<strong>Rules:</strong>
 		Helicopter is a side scrolling shooter. Protect the earth from the aliens. Let even a single alien through and we all die.
+		Keyboard inputs (→, ↑, ↓) are supported if you <i>click on the game view</i>.
 	</div>
 </div>
 
+<style>
+
+	.controls {
+		margin-top: 1rem;
+	}
+
+		.controls button {
+			margin-right: .5rem;
+			margin-bottom: .5rem;
+		}
+
+	.spinner {
+		fill: @(HelicopterSpinnerColor ? "#000" : "#888");
+	}
+
+</style>
+
 @code
 {
-	bool GameOver = false;
-	bool Running = false;
-	double BulletSpeed = 1d;
-	double AlienSpeed = 1d;
-	List<(double X, double Y)> Bullets = new List<(double X, double Y)>();
+		const double BulletSpeed = .03d;
+		const double AlienSpeed = .01d;
+		const double HelicopterSpeed = .05d;
 
-	void OnKeyDown(KeyboardEventArgs e)
+		Random Random = new Random();
+		bool GameOver = false;
+		bool Running = false;
+		List<(double X, double Y)> Bullets = new List<(double X, double Y)>();
+		List<Alien> Aliens = new List<Alien>();
+		(double X, double Y) Heli = (.1, .5);
+		DateTime? LastSpawn = null;
+		TimeSpan AlienSpawnRate = TimeSpan.FromSeconds(3);
+		TimeSpan MinimumAlienSpawnRate = TimeSpan.FromMilliseconds(300);
+		bool HelicopterSpinnerColor;
+
+		System.Timers.Timer _timer;
+		System.Timers.Timer Timer
 	{
-		switch (e.Key)
+			get
 		{
-			case "ArrowRight":  break;
-			case "ArrowUp":  break;
-			case "ArrowDown":  break;
-			default: return;
+				if (_timer is null)
+				{
+					Reset();
+				}
+				return _timer;
+			}
 		}
-	}
 
-	void MoveUp()
+		void Reset()
+		{
+			if (_timer is not null)
+			{
+				_timer.Enabled = false;
+			}
+			GameOver = false;
+			Running = false;
+			Bullets = new List<(double X, double Y)>();
+			Aliens = new List<Alien>();
+			AlienSpawnRate = TimeSpan.FromSeconds(3);
+			LastSpawn = null;
+			Heli = (.1, .5);
+			GameOver = false;
+			_timer = new System.Timers.Timer();
+			_timer.Interval = 100; // milliseconds
+			_timer.Elapsed += (_, _) => { Update(); };
+			_timer.Enabled = false;
+			StateHasChanged();
+		}
+
+		void OnKeyDown(KeyboardEventArgs e)
+		{
+			switch (e.Key)
+			{
+				case "ArrowRight": if (!GameOver && !Running) { Start(); } Shoot(); break;
+				case "ArrowUp": if (!GameOver && !Running) { Start(); } MoveUp(); break;
+				case "ArrowDown": if (!GameOver && !Running) { Start(); } MoveDown(); break;
+				default: return;
+			}
+		}
+
+		void MoveUp()
+		{
+			Heli.Y = Math.Max(Heli.Y - HelicopterSpeed, 0);
+		}
+
+		void MoveDown()
+		{
+			Heli.Y = Math.Min(Heli.Y + HelicopterSpeed, .9);
+		}
+
+		void Shoot()
+		{
+			Bullets.Add((Heli.X + .1, Heli.Y + .05));
+		}
+
+		void Start()
+		{
+			Timer.Enabled = true;
+			Running = true;
+		}
+
+		void Update()
+		{
+			if (GameOver || !Running)
+			{
+				Timer.Enabled = false;
+				StateHasChanged();
+				return;
+			}
+
+			HelicopterSpinnerColor = !HelicopterSpinnerColor;
+
+			// move aliens
+			for (int i = 0; i < Aliens.Count; i++)
+			{
+				Aliens[i].Position.X -= AlienSpeed;
+			}
+
+			// spawn new aliens if necessary
+			if (!LastSpawn.HasValue)
+			{
+				LastSpawn = DateTime.Now;
+			}
+			else if (DateTime.Now - LastSpawn > AlienSpawnRate)
+			{
+				double randomY = Random.NextDouble() * .9;
+				System.Drawing.Color randomColor = System.Drawing.Color.FromArgb(Random.Next(0, 256), Random.Next(0, 256), Random.Next(0, 256));
+				string randomColorString = "#" + randomColor.R.ToString("X2") + randomColor.G.ToString("X2") + randomColor.B.ToString("X2");
+				int randomHealth = Random.Next(5);
+				Aliens.Add(new Alien()
+				{
+					Position = (1, randomY),
+					Size = (.1, .1),
+					Color = randomColorString,
+					Health = randomHealth,
+				});
+				LastSpawn = DateTime.Now;
+				AlienSpawnRate -= TimeSpan.FromMilliseconds(20);
+				if (AlienSpawnRate < MinimumAlienSpawnRate)
+				{
+					AlienSpawnRate = MinimumAlienSpawnRate;
+				}
+			}
+
+			// detect bullet-alien collisions
+			HashSet<(double X, double Y)> collidingBullets = new HashSet<(double X, double Y)>();
+			foreach (var bullet in Bullets)
+			{
+				foreach (Alien alien in Aliens)
+				{
+					if (bullet.X > alien.Position.X &&
+						bullet.Y > alien.Position.Y &&
+						bullet.X < alien.Position.X + alien.Size.X &&
+						bullet.Y < alien.Position.Y + alien.Size.Y)
+					{
+						collidingBullets.Add(bullet);
+						alien.Health--;
+						break;
+					}
+				}
+			}
+			Bullets.RemoveAll(collidingBullets.Contains);
+			Aliens.RemoveAll(a => a.Health <= 0);
+
+			// move bullets
+			for (int i = 0; i < Bullets.Count; i++)
+			{
+				var (x, y) = Bullets[i];
+				Bullets[i] = (x + BulletSpeed, y);
+			}
+			Bullets.RemoveAll(b => b.X > 1);
+
+			// detect game over
+			if (Aliens.Any(a => a.Position.X <= 0))
+			{
+				GameOver = true;
+				Timer.Enabled = false;
+			}
+
+			StateHasChanged();
+		}
+
+		string RenderToSvg()
+		{
+			System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+			stringBuilder.AppendLine();
+			stringBuilder.AppendLine($@"<svg fill=""#000"" width=""60vmin"" height=""60vmin"" viewBox=""0 0 1000 1000"" preserveAspectRatio=""xMinYMin meet"" xmlns=""http://www.w3.org/2000/svg"" xmlns:svg=""http://www.w3.org/2000/svg"">");
+
+			// aliens
+			foreach (var alien in Aliens)
+			{
+				stringBuilder.AppendLine($@"	<rect width=""{alien.Size.X * 100}%"" height=""{alien.Size.Y * 100}%"" fill=""{alien.Color}"" stroke=""#000"" stroke-width=""0"" x=""{alien.Position.X * 100}%"" y=""{alien.Position.Y * 100}%""/>");
+			}
+			// helicopter
+			stringBuilder.AppendLine(@$" <svg x=""{Heli.X * 100}%"" y=""{Heli.Y * 100}%"" >");
+			stringBuilder.AppendLine(@"		<svg width=""160"" height=""100"" viewBox=""0 0 160 100"" xmlns=""http://www.w3.org/2000/svg"" xmlns:svg=""http://www.w3.org/2000/svg"" transform=""scale(-1, 1)"" >");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""16.57143"" transform=""matrix(-1.0122 -0.0197068 -0.0184596 1.08059 20.8674 -3.31392)"" width=""5.42857"" x=""-80.23787"" y=""16.14684"" />");
+			stringBuilder.AppendLine(@"			<ellipse cx=""-80.32154"" cy=""28.6285"" fill=""#24292e"" rx=""41.71429"" ry=""25.14286"" transform=""matrix(-0.99714 -0.186756 -0.174937 1.06451 28.2855 7.23945)"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""12.20925"" transform=""matrix(-0.996512 -0.190539 -0.17848 1.06384 26.2895 17.7494)"" width=""70"" x=""-60.79706"" y=""14.89757"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""28.46025"" width=""8.43641"" x=""12.11133"" y=""15.96923"" />");
+			stringBuilder.AppendLine(@"			<ellipse class=""spinner"" cx=""10.42405"" cy=""21.37307"" fill=""#6d6d6d"" rx=""7.42404"" ry=""18.37308"" />");
+			stringBuilder.AppendLine(@"			<ellipse class=""spinner"" cx=""-78.65344"" cy=""15.67662"" fill=""#6d6d6d"" rx=""56.14286"" ry=""8.28571"" transform=""matrix(-1.01234 -0.00796569 -0.00746156 1.08074 20.5356 -4.06998)"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""17"" transform=""matrix(-0.989058 0.230594 0.216 1.05588 1.98633 -13.0541)"" width=""4.33333"" x=""-93.56295"" y=""104.96748"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""19.33333"" transform=""matrix(-0.964957 -0.326875 -0.306188 1.03015 41.4169 23.945)"" width=""4.93041"" x=""-62.74163"" y=""30.72636"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""5.04359"" width=""57.36761"" x=""74.54078"" y=""91.62307"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""5.55614"" transform=""matrix(-0.8422 -0.599731 -0.561775 0.899102 64.1497 29.5999)"" width=""4.2"" x=""-90.28974"" y=""8.67957"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#24292e"" height=""7.2"" transform=""matrix(-0.727491 0.75159 0.704023 0.776643 -65.3211 -44.4896)"" width=""4.8"" x=""-13.47713"" y=""182.65583"" />");
+			stringBuilder.AppendLine(@"			<ellipse cx=""108.08396"" cy=""41.25923"" fill=""#ffffff"" rx=""7.28906"" ry=""11.24"" />");
+			stringBuilder.AppendLine(@"			<ellipse cx=""124.48434"" cy=""41.90769"" fill=""#ffffff"" rx=""7.28906"" ry=""11.24"" />");
+			stringBuilder.AppendLine(@"			<ellipse cx=""125.90166"" cy=""42.23192"" fill=""#000000"" rx=""4.45443"" ry=""5.94423"" />");
+			stringBuilder.AppendLine(@"			<ellipse cx=""110.31117"" cy=""42.12384"" fill=""#000000"" rx=""4.45443"" ry=""5.94423"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#000000"" height=""4.8"" transform=""matrix(-0.935284 -0.413653 -0.387474 0.998475 27.6345 20.1234)"" width=""13.67737"" x=""-84.18898"" y=""-24.21465"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#000000"" height=""4.8"" transform=""matrix(-0.940913 0.39884 0.373598 1.00448 6.38373 -17.2826)"" width=""11.8"" x=""-97.93427"" y=""82.74"" />");
+			stringBuilder.AppendLine(@"			<rect fill=""#000000"" height=""4.97154"" width=""23.89192"" x=""104.43943"" y=""57.47077"" />");
+			stringBuilder.AppendLine(@"		</svg>");
+			stringBuilder.AppendLine(@" </svg>");
+			// bullets
+			foreach (var bullet in Bullets)
+			{
+				stringBuilder.AppendLine($@"	<rect fill=""#000"" stroke=""#000"" stroke-width=""0"" width=""1%"" height=""1%"" x=""{bullet.X * 100}%"" y=""{bullet.Y * 100}%""/>");
+			}
+
+			stringBuilder.AppendLine($@"</svg>");
+			stringBuilder.AppendLine();
+			return stringBuilder.ToString();
+		}
+
+	class Alien
 	{
-
+		public (double X, double Y) Position;
+		public (double X, double Y) Size;
+		public string Color;
+		public int Health;
 	}
-
-	void MoveDown()
-	{
-
-	}
-
-	void Shoot()
-	{
-
-	}
-
-	void Start()
-	{
-
-	}
-
 }
