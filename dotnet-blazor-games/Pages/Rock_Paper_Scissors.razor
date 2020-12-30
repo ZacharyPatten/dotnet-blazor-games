@@ -1,0 +1,99 @@
+﻿@page "/rockpaperscissors"
+
+<div @onkeydown="@OnKeyDown" tabindex="0">
+	<h3>Rock Paper Scissors</h3>
+	<div class="source-code-badge">
+		<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/master/dotnet-blazor-games/Pages/Rock_Paper_Scissors.razor" alt="Go To Source Code">
+			<img title="Go To Source Code" alt="Go To Source Code" src="https://img.shields.io/badge/source-code-black?logo=github&amp;style=flat">
+		</a>
+	</div>
+	<div class="row">
+		<div class="controls">
+			<button class="btn btn-primary" @onclick="() => { Guess(Move.Rock); }">Rock</button>
+			<button class="btn btn-primary" @onclick="() => { Guess(Move.Paper); }">Paper</button>
+			<button class="btn btn-primary" @onclick="() => { Guess(Move.Scissors); }">Scissors</button>
+		</div>
+	</div>
+	<div class="row">
+		@SelectedMoves
+	</div>
+	<div class="row">
+		@Message
+	</div>
+	<div class="row">
+		Wins: @Wins
+		Losses: @Losses
+		Draws: @Draws
+	</div>
+	<div class="alert alert-dismissible alert-secondary">
+		<strong>Rules:</strong>
+		Guess Rock, Paper, or Scissors, and the computer will do the same. Rock beats Scissors, Scissors beats paper, and Paper beats Rock.
+	</div>
+</div>
+
+<style>
+
+	.controls {
+		margin-top: 1rem;
+	}
+
+		.controls button {
+			margin-right: .5rem;
+			margin-bottom: .5rem;
+		}
+
+</style>
+
+@code
+{
+	int Wins;
+	int Losses;
+	int Draws;
+	Random random = new Random();
+	string SelectedMoves;
+	string Message;
+
+	void OnKeyDown(KeyboardEventArgs e)
+	{
+		switch (e.Key)
+		{
+			case "R": Guess(Move.Rock);     break;
+			case "P": Guess(Move.Paper);    break;
+			case "S": Guess(Move.Scissors); break;
+			default: return;
+		}
+	}
+
+	void Guess(Move playerMove)
+	{
+		Move computerMove = (Move)random.Next(3);
+		SelectedMoves = $"You guessed {playerMove} and the computer guessed {computerMove}.";
+		switch (playerMove, computerMove)
+		{
+			case (Move.Rock, Move.Paper):
+			case (Move.Paper, Move.Scissors):
+			case (Move.Scissors, Move.Rock):
+				Message = "You lose.";
+				Losses++;
+				break;
+			case (Move.Rock, Move.Scissors):
+			case (Move.Paper, Move.Rock):
+			case (Move.Scissors, Move.Paper):
+				Message = "You win.";
+				Wins++;
+				break;
+			default:
+				Message = "This game was a draw.";
+				Draws++;
+				break;
+		}
+		StateHasChanged();
+	}
+
+	enum Move
+	{
+		Rock = 0,
+		Paper = 1,
+		Scissors = 2,
+	}
+}
