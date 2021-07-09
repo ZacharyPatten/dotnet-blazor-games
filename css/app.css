@@ -1,0 +1,117 @@
+﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+html, body {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+	color: #0366d6;
+}
+
+.btn-primary {
+	color: #fff;
+	background-color: #1b6ec2;
+	border-color: #1861ac;
+}
+
+.content {
+	padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+	outline: 1px solid #26b050;
+}
+
+.invalid {
+	outline: 1px solid red;
+}
+
+.validation-message {
+	color: red;
+}
+
+#blazor-error-ui {
+	background: lightyellow;
+	bottom: 0;
+	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+	display: none;
+	left: 0;
+	padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+	position: fixed;
+	width: 100%;
+	z-index: 1000;
+}
+
+	#blazor-error-ui .dismiss {
+		cursor: pointer;
+		position: absolute;
+		right: 0.75rem;
+		top: 0.5rem;
+	}
+
+.octicon {
+	margin-left: .5rem;
+}
+
+.gh-logo {
+	fill: #fff;
+}
+
+.top-row {
+	background-color: #24292e !important;
+	border-bottom: none !important;
+}
+
+	.top-row a {
+		color: #fff;
+	}
+
+		.top-row a:hover {
+			color: hsla(0,0%,100%,.7);
+			text-decoration: none;
+		}
+
+			.top-row a:hover .gh-logo {
+				fill: hsla(0,0%,100%,.7);
+			}
+
+.sidebar {
+	background-image: none !important;
+	background-color: #fff !important;
+	color: #24292e;
+}
+
+.sidebar-nav {
+	border-right: 1px solid #e1e4e8 !important;
+	/*height: 100%;*/
+}
+
+.nav-item a {
+	color: #24292e !important;
+}
+
+	.nav-item a:hover {
+		color: hsla(0,0%,100%,.7) !important;
+		background-color: #3F4448 !important;
+	}
+
+.navbar-brand:hover {
+	color: hsla(0,0%,100%,.7) !important;
+}
+
+.main {
+	background-color: #f6f8fa !important;
+}
+
+.main .row {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.source-code-badge {
+	margin-bottom: 10px;
+}
+
+:focus {
+	outline: none;
+}
