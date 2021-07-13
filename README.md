@@ -8,6 +8,7 @@
 	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/actions" alt="Continuous Integration"><img src="https://github.com/ZacharyPatten/dotnet-blazor-games/workflows/Continuous%20Integration/badge.svg" title="Go To Action" alt="Continuous Integration"></a>
 	<a href="https://discord.gg/4XbQbwF" alt="Discord"><img src="https://img.shields.io/discord/557244925712924684?logo=discord&logoColor=ffffff&color=7389D8" title="Go To Discord Server" alt="Discord"/></a>
 	<a href="https://github.com/ZacharyPatten/dotnet-blazor-games/blob/main/LICENSE" alt="License"><img src="https://img.shields.io/badge/license-MIT-green.svg" title="Go To License" alt="License"/></a>
+	<a href="https://github.com/ZacharyPatten/Towel"><img src="https://github.com/ZacharyPatten/Towel/blob/main/.github/Resources/UsingTowel.svg?raw=true" title="Go To Towel"></a>
 </p>
 
 <p align="center">
