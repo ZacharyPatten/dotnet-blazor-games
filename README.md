@@ -15,6 +15,8 @@
 	A collection of game examples implemented as .NET blazor components primarily for providing education and inspiration. :)
 </p>
 
+> **Warning** The original purpose of this repository was to port the games from [dotnet-console-games](https://github.com/ZacharyPatten/dotnet-console-games) to blazor webassembly hosted on GitHub pages. However, a better way to port the games was discovered and implemented in the [dotnet-console-games](https://github.com/ZacharyPatten/dotnet-console-games) repository rather than this seperate repository. There are currently no plans to do any further development on `dotnet-blazor-games` (this) repository, but that may change in the future.
+
 <p align="center">
 	<a href="https://zacharypatten.github.io/dotnet-blazor-games" alt="Play Now">
 		<img height="40"src="https://img.shields.io/badge/Play-Now-gray?style=flat-square&logo=github" title="Play Now" alt="Play Now"/>
